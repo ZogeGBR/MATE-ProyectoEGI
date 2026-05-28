@@ -1,0 +1,9 @@
+Integrante 1 — Infraestructura y Seguridad de Red
+Linux · GUFW · Minikube · Network Policies
+•  Instalar Ubuntu 22.04 y configurar GUFW con reglas perimetrales (puertos 80, 443, 8080)
+•  Arrancar Minikube con CNI Calico: minikube start --cni=calico
+•  Escribir los manifiestos YAML de NetworkPolicy para cada microservicio
+•  Verificar que el deny-all funciona y que las reglas de menor privilegio están aplicadas
+•  Generar el esquema de arquitectura de servicios (nombre, puertos, reglas de red)
+•  Documentar en docs/infraestructura.md
+
