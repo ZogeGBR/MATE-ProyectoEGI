@@ -1,0 +1,8 @@
+Integrante 2 — Base de Datos Relacional (SQL Server / MySQL)
+Base de Datos · Modelo ER · Script DDL
+•  Diseñar el modelo ER: tablas Aulas, Laboratorios, Equipos, Responsables, Mantenimientos
+•  Escribir el script DDL completo (CREATE TABLE, índices, FK) en db/sql/schema.sql
+•  Insertar mínimo 20 registros de prueba en db/sql/datos_prueba.sql
+•  Desplegar el pod de SQL Server en Kubernetes y verificar con kubectl exec
+•  Verificar la conexión del frontend con la base de datos a través del Service interno
+
