@@ -1,0 +1,9 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: inventario-egi
+data:
+  MYSQL_DATABASE: "inventario_itu"
+  MYSQL_HOST: "mysql-service"
+  MYSQL_PORT: "3306"
