@@ -66,23 +66,7 @@ Simula una ampliación de RAM en el equipo del Lab. de Hardware.
 
 
 
-\## 5. deleteOne — Eliminar un equipo
-
-db.hardware.deleteOne(
-
-&#x20; { "numero\_serie": "SN-LAB4-002" }
-
-)
-
-Elimina el registro del equipo dado de baja.
-
-
-
-\---
-
-
-
-\## 6. aggregate — Contar equipos por fabricante
+\## 5. aggregate — Contar equipos por fabricante
 
 db.hardware.aggregate(\[
 
@@ -93,4 +77,20 @@ db.hardware.aggregate(\[
 ])
 
 Agrupa y cuenta los equipos por fabricante, ordenado de mayor a menor.
+
+
+
+\---
+
+
+
+\## 6. deleteOne — Eliminar un equipo ⚠️ Ejecutar al final de la demo
+
+db.hardware.deleteOne(
+
+&#x20; { "numero\_serie": "SN-LAB4-002" }
+
+)
+
+Elimina el registro del equipo dado de baja. Ejecutar al final para que el documento siga disponible durante toda la demo de la app web.
 
