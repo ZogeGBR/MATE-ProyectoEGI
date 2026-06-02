@@ -274,6 +274,8 @@ function renderRow(item) {
   tr.className = `inventory-row inventory-row--${item.stock.estado}`;
   tr.dataset.codigo = item.codigo;
   tr.dataset.stockEstado = item.stock.estado;
+  tr.style.cursor = "pointer";
+  tr.title = `Ver detalle de ${item.nombre}`;
 
   tr.innerHTML = `
     <td class="col-thumb">
@@ -303,6 +305,11 @@ function renderRow(item) {
 
   const img = tr.querySelector("img");
   img.alt = `Imagen de ${item.nombre}`;
+
+  // Navigate to detail page on click
+  tr.addEventListener("click", function () {
+    window.location.href = `detalle.html?codigo=${encodeURIComponent(item.codigo)}`;
+  });
 
   return tr;
 }
