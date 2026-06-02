@@ -66,8 +66,8 @@
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   box-shadow:
-    0 8px 32px rgba(0, 43, 82, 0.18),
-    0 1.5px 4px rgba(0, 43, 82, 0.08);
+    0 8px 32px rgba(10, 63, 67, 0.18),
+    0 1.5px 4px rgba(10, 63, 67, 0.08);
   animation: card-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -106,7 +106,7 @@
   font-size: 1.4rem;
   letter-spacing: 0.06em;
   margin: 0 auto 1rem;
-  box-shadow: 0 4px 14px rgba(0, 59, 113, 0.25);
+  box-shadow: 0 4px 14px rgba(10, 63, 67, 0.25);
   user-select: none;
 }
 
@@ -195,7 +195,7 @@
 .input-group__field:focus {
   outline: none;
   border-color: var(--itu-teal);
-  box-shadow: 0 0 0 3.5px rgba(0, 131, 143, 0.12);
+  box-shadow: 0 0 0 3.5px rgba(10, 63, 67, 0.15);
 }
 
 .input-group__field:focus ~ .input-group__icon {
@@ -268,7 +268,7 @@
 
 .login-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 59, 113, 0.3);
+  box-shadow: 0 6px 20px rgba(10, 63, 67, 0.3);
 }
 
 .login-btn:hover::before {
@@ -277,7 +277,7 @@
 
 .login-btn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 59, 113, 0.2);
+  box-shadow: 0 2px 8px rgba(10, 63, 67, 0.2);
 }
 
 /* Spinner inside button (hidden by default) */

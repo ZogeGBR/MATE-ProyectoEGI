@@ -1,28 +1,27 @@
 /**
  * Paleta institucional ITU — UNCUYO
- * Basada en la identidad visual universitaria: azul institucional,
- * acentos tecnológicos y neutros de alto contraste para operaciones.
+ * Basada en tres colores: #0a3f43 (principal), #ffffff, #eeeeee.
  */
 :root {
-  /* Primarios */
-  --itu-azul-institucional: #003b71;
-  --itu-azul-oscuro: #002a52;
-  --itu-azul-medio: #0056a3;
-  --itu-azul-claro: #4a90c4;
+  /* Primarios — derivados de #0a3f43 */
+  --itu-azul-institucional: #0a3f43;
+  --itu-azul-oscuro: #072e31;
+  --itu-azul-medio: #0d5259;
+  --itu-azul-claro: #1a7a82;
 
-  /* Acento tecnológico (marca ITU) */
-  --itu-teal: #00838f;
-  --itu-teal-claro: #4db6ac;
-  --itu-teal-suave: #e0f2f1;
+  /* Acento (variantes más claras del principal) */
+  --itu-teal: #0a3f43;
+  --itu-teal-claro: #1a7a82;
+  --itu-teal-suave: #e4eeef;
 
   /* Neutros */
   --itu-blanco: #ffffff;
-  --itu-fondo: #f4f7fb;
+  --itu-fondo: #eeeeee;
   --itu-superficie: #ffffff;
-  --itu-borde: #d8e2ef;
-  --itu-texto: #1a2b3c;
-  --itu-texto-secundario: #5a6b7d;
-  --itu-texto-suave: #8b9aab;
+  --itu-borde: #d5d5d5;
+  --itu-texto: #1a1a1a;
+  --itu-texto-secundario: #555555;
+  --itu-texto-suave: #888888;
 
   /* Niveles de stock (operativo, sin valor monetario) */
   --stock-disponible: #2e7d32;
@@ -38,8 +37,8 @@
   /* Layout */
   --header-alto: 4.25rem;
   --panel-radio: 8px;
-  --sombra-panel: 0 1px 3px rgba(0, 43, 82, 0.08);
-  --sombra-elevada: 0 4px 12px rgba(0, 43, 82, 0.1);
+  --sombra-panel: 0 1px 3px rgba(10, 63, 67, 0.08);
+  --sombra-elevada: 0 4px 12px rgba(10, 63, 67, 0.12);
 
   /* Tipografía */
   --fuente-sans: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,

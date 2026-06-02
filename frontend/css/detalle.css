@@ -356,7 +356,7 @@
 }
 
 .spec-item:hover {
-  background: rgba(224, 242, 241, 0.3);
+  background: rgba(228, 238, 239, 0.5);
 }
 
 .spec-item__label {
@@ -397,7 +397,7 @@
 .spec-item__input:focus {
   outline: none;
   border-color: var(--itu-teal);
-  box-shadow: 0 0 0 3px rgba(0, 131, 143, 0.1);
+  box-shadow: 0 0 0 3px rgba(10, 63, 67, 0.12);
 }
 
 /* When editing mode is on */
@@ -455,7 +455,7 @@
 .stock-control__input:focus {
   outline: none;
   border-color: var(--itu-teal);
-  box-shadow: 0 0 0 3px rgba(0, 131, 143, 0.1);
+  box-shadow: 0 0 0 3px rgba(10, 63, 67, 0.12);
 }
 
 .stock-control__select {
@@ -474,7 +474,7 @@
 .stock-control__select:focus {
   outline: none;
   border-color: var(--itu-teal);
-  box-shadow: 0 0 0 3px rgba(0, 131, 143, 0.1);
+  box-shadow: 0 0 0 3px rgba(10, 63, 67, 0.12);
 }
 
 /* Stock meter (read-only display) */
@@ -551,12 +551,12 @@
     var(--itu-teal)
   );
   color: var(--itu-blanco);
-  box-shadow: 0 2px 8px rgba(0, 59, 113, 0.2);
+  box-shadow: 0 2px 8px rgba(10, 63, 67, 0.2);
 }
 
 .detail-btn--primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 59, 113, 0.3);
+  box-shadow: 0 4px 16px rgba(10, 63, 67, 0.3);
 }
 
 .detail-btn--primary:active {
@@ -590,7 +590,7 @@
   color: var(--itu-blanco);
   font-size: 0.875rem;
   font-weight: 500;
-  box-shadow: 0 8px 30px rgba(0, 43, 82, 0.3);
+  box-shadow: 0 8px 30px rgba(10, 63, 67, 0.3);
   z-index: 1000;
   opacity: 0;
   transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
