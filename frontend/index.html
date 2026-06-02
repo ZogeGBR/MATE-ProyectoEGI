@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Panel de control de inventario interno — ITU UNCUYO"
+    />
+    <title>Control de Inventario | ITU UNCUYO</title>
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- Parte 1: Header + Tabla general -->
+      <header class="panel-header" role="banner">
+        <div class="panel-header__inner">
+          <div class="panel-header__top">
+            <div class="panel-header__brand">
+              <div class="panel-header__logo" aria-hidden="true">ITU</div>
+              <div class="panel-header__titles">
+                <h1>Control de Inventario</h1>
+                <p>Instituto Tecnológico Universitario — UNCUYO</p>
+              </div>
+            </div>
+            <div class="panel-header__meta">
+              <span>Panel operativo interno</span><br />
+              <span id="header-fecha" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div
+            class="panel-header__controls"
+            role="search"
+            aria-label="Búsqueda y filtros de inventario"
+          >
+            <div class="search-field">
+              <label class="sr-only" for="search-inventory"
+                >Buscar en inventario</label
+              >
+              <svg
+                class="search-field__icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3-3" />
+              </svg>
+              <input
+                type="search"
+                id="search-inventory"
+                class="search-field__input"
+                placeholder="Nombre, características…"
+                autocomplete="off"
+                enterkeyhint="search"
+              />
+            </div>
+
+            <div class="filter-field">
+              <label class="filter-field__label" for="filter-estado"
+                >Estado de stock</label
+              >
+              <select id="filter-estado" class="filter-field__select">
+                <option value="">Todos</option>
+                <option value="disponible">Disponible</option>
+                <option value="revision">Pendiente de revisión</option>
+                <option value="agotado">Agotado</option>
+              </select>
+            </div>
+
+            <div class="filter-field">
+              <label class="filter-field__label" for="filter-categoria"
+                >Categoría</label
+              >
+              <select id="filter-categoria" class="filter-field__select">
+                <option value="">Todas</option>
+                <option value="instrumentacion">Instrumentación</option>
+                <option value="informatica">Informática</option>
+                <option value="mobiliario">Mobiliario</option>
+                <option value="audiovisual">Audiovisual</option>
+                <option value="herramientas">Herramientas</option>
+              </select>
+            </div>
+
+            <div class="filter-field">
+              <label class="filter-field__label" for="filter-fisicas"
+                >Características físicas</label
+              >
+              <select id="filter-fisicas" class="filter-field__select">
+                <option value="">Todas</option>
+                <option value="portatil">Portátil</option>
+                <option value="mesa">De mesa</option>
+                <option value="voluminoso">Voluminoso</option>
+                <option value="fijo">Instalación fija</option>
+                <option value="rack">Rack / gabinete</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="panel-header__actions">
+            <button
+              type="button"
+              class="btn btn--ghost"
+              id="btn-clear-filters"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="panel-main" id="main-content">
+        <div class="panel-summary">
+          <p class="panel-summary__count">
+            <strong id="result-count">—</strong>
+          </p>
+          <ul class="stock-legend" aria-label="Leyenda de estados de stock">
+            <li class="stock-legend__item stock-legend__item--disponible">
+              <span class="stock-legend__dot" aria-hidden="true"></span>
+              Disponible
+            </li>
+            <li class="stock-legend__item stock-legend__item--revision">
+              <span class="stock-legend__dot" aria-hidden="true"></span>
+              Pendiente de revisión
+            </li>
+            <li class="stock-legend__item stock-legend__item--agotado">
+              <span class="stock-legend__dot" aria-hidden="true"></span>
+              Agotado
+            </li>
+          </ul>
+        </div>
+
+        <section
+          class="inventory-panel"
+          aria-labelledby="tabla-inventario-titulo"
+        >
+          <h2 id="tabla-inventario-titulo" class="sr-only">
+            Tabla general de inventario
+          </h2>
+
+          <div class="table-scroll">
+            <table class="inventory-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="col-thumb">
+                    <span class="sr-only">Imagen</span>
+                  </th>
+                  <th scope="col">Producto</th>
+                  <th scope="col">Características</th>
+                  <th scope="col" class="col-stock">Nivel de stock</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-tbody"></tbody>
+            </table>
+          </div>
+
+          <div id="table-empty" class="table-empty" hidden>
+            <p class="table-empty__title">Sin resultados</p>
+            <p>
+              No hay elementos que coincidan con la búsqueda o los filtros
+              seleccionados.
+            </p>
+          </div>
+
+          <footer
+            class="table-footer"
+            id="table-footer"
+            aria-label="Pie de tabla de inventario"
+          >
+            <p
+              class="table-footer__summary"
+              id="page-summary"
+              aria-live="polite"
+            ></p>
+            <nav
+              class="table-pagination"
+              id="table-pagination"
+              aria-label="Paginación de la tabla"
+            >
+              <button
+                type="button"
+                class="pagination-btn pagination-btn--nav"
+                id="btn-page-prev"
+                aria-label="Página anterior"
+                disabled
+              >
+                ‹ Anterior
+              </button>
+              <ol class="pagination-pages" id="pagination-pages"></ol>
+              <button
+                type="button"
+                class="pagination-btn pagination-btn--nav"
+                id="btn-page-next"
+                aria-label="Página siguiente"
+                disabled
+              >
+                Siguiente ›
+              </button>
+            </nav>
+          </footer>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <strong>ITU — UNCUYO</strong> · Sistema interno de control de inventario
+      </footer>
+    </div>
+
+    <script>
+      document.getElementById("header-fecha").textContent =
+        new Intl.DateTimeFormat("es-AR", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }).format(new Date());
+    </script>
+    <script src="js/dashboard.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+/**
+ * Paleta institucional ITU — UNCUYO
+ * Basada en la identidad visual universitaria: azul institucional,
+ * acentos tecnológicos y neutros de alto contraste para operaciones.
+ */
+:root {
+  /* Primarios */
+  --itu-azul-institucional: #003b71;
+  --itu-azul-oscuro: #002a52;
+  --itu-azul-medio: #0056a3;
+  --itu-azul-claro: #4a90c4;
+
+  /* Acento tecnológico (marca ITU) */
+  --itu-teal: #00838f;
+  --itu-teal-claro: #4db6ac;
+  --itu-teal-suave: #e0f2f1;
+
+  /* Neutros */
+  --itu-blanco: #ffffff;
+  --itu-fondo: #f4f7fb;
+  --itu-superficie: #ffffff;
+  --itu-borde: #d8e2ef;
+  --itu-texto: #1a2b3c;
+  --itu-texto-secundario: #5a6b7d;
+  --itu-texto-suave: #8b9aab;
+
+  /* Niveles de stock (operativo, sin valor monetario) */
+  --stock-disponible: #2e7d32;
+  --stock-disponible-bg: #e8f5e9;
+  --stock-disponible-borde: #66bb6a;
+  --stock-revision: #e65100;
+  --stock-revision-bg: #fff3e0;
+  --stock-revision-borde: #ffb74d;
+  --stock-agotado: #c62828;
+  --stock-agotado-bg: #ffebee;
+  --stock-agotado-borde: #ef5350;
+
+  /* Layout */
+  --header-alto: 4.25rem;
+  --panel-radio: 8px;
+  --sombra-panel: 0 1px 3px rgba(0, 43, 82, 0.08);
+  --sombra-elevada: 0 4px 12px rgba(0, 43, 82, 0.1);
+
+  /* Tipografía */
+  --fuente-sans: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Arial, sans-serif;
+  --fuente-mono: "Cascadia Code", "Consolas", "Liberation Mono", monospace;
+}
