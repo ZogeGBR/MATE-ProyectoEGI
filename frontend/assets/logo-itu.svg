@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <!-- ITU Logo -->
+  <g transform="translate(60, 60)">
+    <!-- Letter "i" -->
+    <rect x="0" y="100" width="45" height="160" rx="2" fill="white"/>
+    <!-- Dot on "i" (red circle) -->
+    <circle cx="22" cy="70" r="22" fill="#d32f2f"/>
+    
+    <!-- Letter "t" -->
+    <rect x="70" y="30" width="45" height="230" rx="2" fill="white"/>
+    <rect x="50" y="30" width="85" height="35" rx="2" fill="white"/>
+    
+    <!-- Letter "u" -->
+    <path d="M170 100 L170 220 Q170 260 210 260 Q250 260 250 220 L250 100 L295 100 L295 220 Q295 300 210 300 Q170 300 150 280 Q125 260 125 220 L125 100 Z" fill="white"/>
+  </g>
+  
+  <!-- Red lines -->
+  <rect x="60" y="310" width="280" height="3" fill="#d32f2f"/>
+  
+  <!-- Text -->
+  <text x="200" y="345" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="600" letter-spacing="3">INSTITUTO TECNOLÓGICO</text>
+  <text x="200" y="375" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="800" letter-spacing="4">UNIVERSITARIO</text>
+</svg>

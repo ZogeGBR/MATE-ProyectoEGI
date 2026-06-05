@@ -1,190 +1,150 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Inicio de sesión — Sistema de control de acceso interno ITU UNCUYO"
-    />
-    <title>Iniciar Sesión | Control de Inventario — ITU UNCUYO</title>
-    <link rel="stylesheet" href="css/variables.css" />
-    <link rel="stylesheet" href="css/base.css" />
-    <link rel="stylesheet" href="css/login.css" />
-  </head>
-  <body>
-    <div class="login-page" role="main">
-      <!-- Decorative floating shapes rendered via CSS ::before / ::after -->
 
-      <div class="login-card">
-        <!-- ====== Header ====== -->
-        <header class="login-header">
-          <div class="login-header__logo" aria-hidden="true">ITU</div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Inicio de sesión — Sistema de control de acceso interno ITU UNCUYO" />
+  <title>Iniciar Sesión | Control de Inventario — ITU UNCUYO</title>
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/login.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+</head>
 
-          <h1 class="login-header__title">Control de Acceso</h1>
-          <p class="login-header__subtitle">
-            Instituto Tecnológico Universitario — UNCUYO
-          </p>
+<body>
+  <div class="login-page" role="main">
+    <!-- ====== Container card ====== -->
+    <div class="login-container">
+      <!-- ====== Left Panel — Sign In Form ====== -->
+      <div class="login-left">
+        <div class="login-left__content">
+          <!-- Header -->
+          <header class="login-header">
+            <h1 class="login-header__title">Iniciar Sesión</h1>
+          </header>
 
-          <div class="login-header__badge">
-            <!-- Lock icon -->
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          <!-- Error banner (hidden by default) -->
+          <div class="login-error" id="login-error" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            Acceso interno protegido
-          </div>
-        </header>
-
-        <!-- ====== Error banner (hidden by default) ====== -->
-        <div class="login-error" id="login-error" role="alert">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <span id="login-error-msg">Credenciales incorrectas. Inténtalo de nuevo.</span>
-        </div>
-
-        <!-- ====== Form ====== -->
-        <form class="login-form" id="login-form" novalidate>
-          <!-- Email -->
-          <div class="input-group">
-            <svg
-              class="input-group__icon"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="2" y="4" width="20" height="16" rx="2" />
-              <path d="M22 4l-10 8L2 4" />
-            </svg>
-            <input
-              type="email"
-              id="login-email"
-              class="input-group__field"
-              placeholder="Correo electrónico institucional"
-              autocomplete="email"
-              required
-            />
-            <label class="sr-only" for="login-email">Correo electrónico</label>
+            <span id="login-error-msg">Credenciales incorrectas. Inténtalo de nuevo.</span>
           </div>
 
-          <!-- Password -->
-          <div class="input-group">
-            <svg
-              class="input-group__icon"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            <input
-              type="password"
-              id="login-password"
-              class="input-group__field"
-              placeholder="Contraseña"
-              autocomplete="current-password"
-              required
-            />
-            <label class="sr-only" for="login-password">Contraseña</label>
+          <!-- Divider text -->
+          <p class="login-divider-text">Usá tu cuenta institucional</p>
 
-            <!-- Toggle password visibility -->
-            <button
-              type="button"
-              class="input-group__toggle"
-              id="toggle-password"
-              aria-label="Mostrar contraseña"
-            >
-              <!-- Eye icon (shown when password is hidden) -->
-              <svg
-                id="icon-eye-open"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
+          <!-- Form -->
+          <form class="login-form" id="login-form" novalidate>
+            <!-- Email -->
+            <div class="input-group">
+              <svg class="input-group__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="M22 4l-10 8L2 4" />
               </svg>
-              <!-- Eye-off icon (shown when password is visible) -->
-              <svg
-                id="icon-eye-closed"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                style="display: none"
-              >
-                <path
-                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
-                />
-                <line x1="1" y1="1" x2="23" y2="23" />
+              <input type="email" id="login-email" class="input-group__field" placeholder="Correo electrónico"
+                autocomplete="email" required />
+              <label class="sr-only" for="login-email">Correo electrónico</label>
+            </div>
+
+            <!-- Password -->
+            <div class="input-group">
+              <svg class="input-group__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
+              <input type="password" id="login-password" class="input-group__field" placeholder="Contraseña"
+                autocomplete="current-password" required />
+              <label class="sr-only" for="login-password">Contraseña</label>
+
+              <!-- Toggle password visibility -->
+              <button type="button" class="input-group__toggle" id="toggle-password" aria-label="Mostrar contraseña">
+                <svg id="icon-eye-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <svg id="icon-eye-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  style="display: none">
+                  <path
+                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Forgot password -->
+            <a href="#" class="login-forgot">¿Olvidaste tu contraseña?</a>
+
+            <!-- Submit -->
+            <button type="submit" class="login-btn" id="login-submit">
+              <span class="login-btn__label">Iniciar Sesión</span>
+              <span class="login-btn__spinner" aria-hidden="true"></span>
             </button>
-          </div>
+          </form>
 
-          <!-- Submit -->
-          <button type="submit" class="login-btn" id="login-submit">
-            <span class="login-btn__label">Iniciar sesión</span>
-            <span class="login-btn__spinner" aria-hidden="true"></span>
-          </button>
-        </form>
-
-        <!-- ====== Footer ====== -->
-        <footer class="login-footer">
-          <p class="login-footer__text">
-            Acceso exclusivo para personal autorizado del
-            <a href="#" class="login-footer__link">ITU — UNCUYO</a>.
-            <br />
-            ¿Problemas para acceder?
-            <a href="#" class="login-footer__link">Contactá a soporte</a>.
-          </p>
-        </footer>
+          <!-- Footer -->
+          <footer class="login-footer">
+            <p class="login-footer__text">
+              Acceso exclusivo para personal autorizado del
+              <a href="#" class="login-footer__link">ITU — UNCUYO</a>.
+              <br />
+              ¿Problemas para acceder?
+              <a href="#" class="login-footer__link">Contactá a soporte</a>.
+            </p>
+          </footer>
+        </div>
       </div>
 
-      <!-- Page-level footer -->
-      <footer class="login-page-footer">
-        <strong>ITU — UNCUYO</strong> · Sistema interno de control de inventario
-      </footer>
+      <!-- ====== Right Panel — ITU Branding ====== -->
+      <div class="login-right">
+        <div class="login-right__bg"></div>
+        <div class="login-right__overlay"></div>
+        <div class="login-right__content">
+          <!-- Logo ITU rendered in HTML/CSS -->
+          <div class="itu-logo" aria-label="Logo ITU">
+            <div class="itu-logo__letters">
+              <span class="itu-logo__i">
+                <span class="itu-logo__dot"></span>
+                <span class="itu-logo__stem"></span>
+              </span>
+              <span class="itu-logo__t">
+                <span class="itu-logo__t-cross"></span>
+                <span class="itu-logo__t-stem"></span>
+              </span>
+              <span class="itu-logo__u">
+                <span class="itu-logo__u-left"></span>
+                <span class="itu-logo__u-bottom"></span>
+                <span class="itu-logo__u-right"></span>
+              </span>
+            </div>
+            <div class="itu-logo__line"></div>
+            <div class="itu-logo__text">
+              <span class="itu-logo__text-top">INSTITUTO TECNOLÓGICO</span>
+              <span class="itu-logo__text-bottom">UNIVERSITARIO</span>
+            </div>
+          </div>
+          <p class="login-right__subtitle">
+            Sistema interno de control de inventario
+          </p>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script src="js/login.js"></script>
-  </body>
+  <script src="js/login.js"></script>
+</body>
+
 </html>

@@ -1,6 +1,11 @@
 /* ================================================================
-   LOGIN — Control de Acceso Interno  |  ITU UNCUYO
+   LOGIN — Split Panel Design  |  ITU UNCUYO
    ================================================================ */
+
+/* ---------- Google Font ---------- */
+* {
+  font-family: "Inter", var(--fuente-sans);
+}
 
 /* ---------- Background & Layout ---------- */
 .login-page {
@@ -8,73 +13,28 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 1.5rem;
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(
-    135deg,
-    var(--itu-azul-oscuro) 0%,
-    var(--itu-azul-institucional) 40%,
-    var(--itu-azul-medio) 100%
-  );
+  padding: 2rem;
+  background: #c8d6d6;
 }
 
-/* Animated floating shapes (purely decorative) */
-.login-page::before,
-.login-page::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.08;
-  pointer-events: none;
-}
-
-.login-page::before {
-  width: 600px;
-  height: 600px;
-  background: var(--itu-teal-claro);
-  top: -180px;
-  right: -120px;
-  animation: float-shape 18s ease-in-out infinite;
-}
-
-.login-page::after {
-  width: 420px;
-  height: 420px;
-  background: var(--itu-azul-claro);
-  bottom: -100px;
-  left: -80px;
-  animation: float-shape 22s ease-in-out infinite reverse;
-}
-
-@keyframes float-shape {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25%      { transform: translate(30px, -20px) scale(1.05); }
-  50%      { transform: translate(-15px, 25px) scale(0.97); }
-  75%      { transform: translate(20px, 10px) scale(1.03); }
-}
-
-/* ---------- Card ---------- */
-.login-card {
-  position: relative;
-  z-index: 1;
+/* ---------- Container (the big card) ---------- */
+.login-container {
+  display: flex;
   width: 100%;
-  max-width: 440px;
-  padding: 3rem 2.5rem 2.5rem;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  max-width: 960px;
+  min-height: 580px;
+  border-radius: 20px;
+  overflow: hidden;
   box-shadow:
-    0 8px 32px rgba(10, 63, 67, 0.18),
-    0 1.5px 4px rgba(10, 63, 67, 0.08);
-  animation: card-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    0 25px 60px rgba(10, 63, 67, 0.18),
+    0 8px 20px rgba(10, 63, 67, 0.1);
+  animation: card-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes card-enter {
   from {
     opacity: 0;
-    transform: translateY(24px) scale(0.97);
+    transform: translateY(30px) scale(0.97);
   }
   to {
     opacity: 1;
@@ -82,76 +42,49 @@
   }
 }
 
+/* ==================== LEFT PANEL (Form) ==================== */
+.login-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  padding: 3rem 2.5rem;
+}
+
+.login-left__content {
+  width: 100%;
+  max-width: 360px;
+}
+
 /* ---------- Header ---------- */
 .login-header {
   text-align: center;
-  margin-bottom: 2rem;
-}
-
-.login-header__logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 14px;
-  background: linear-gradient(
-    145deg,
-    var(--itu-azul-institucional),
-    var(--itu-teal)
-  );
-  color: var(--itu-blanco);
-  font-family: var(--fuente-sans);
-  font-weight: 800;
-  font-size: 1.4rem;
-  letter-spacing: 0.06em;
-  margin: 0 auto 1rem;
-  box-shadow: 0 4px 14px rgba(10, 63, 67, 0.25);
-  user-select: none;
+  margin-bottom: 1.75rem;
 }
 
 .login-header__title {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--itu-azul-oscuro);
-  letter-spacing: -0.01em;
-  line-height: 1.25;
+  color: #1a1a1a;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
-.login-header__subtitle {
-  margin-top: 0.35rem;
-  font-size: 0.875rem;
-  color: var(--itu-texto-secundario);
+/* ---------- Divider text ---------- */
+.login-divider-text {
+  text-align: center;
+  font-size: 0.8125rem;
+  color: #999;
+  margin-bottom: 1.5rem;
   font-weight: 400;
-}
-
-/* Secure badge */
-.login-header__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-top: 0.85rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: 20px;
-  background: var(--itu-teal-suave);
-  color: var(--itu-teal);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.login-header__badge svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
 }
 
 /* ---------- Form ---------- */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 1.35rem;
+  gap: 1.15rem;
 }
 
 /* Floating-label input group */
@@ -164,115 +97,115 @@
   top: 50%;
   left: 1rem;
   transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  color: var(--itu-texto-suave);
+  width: 18px;
+  height: 18px;
+  color: #aaa;
   pointer-events: none;
   transition: color 0.25s ease;
 }
 
 .input-group__field {
   width: 100%;
-  padding: 0.95rem 1rem 0.95rem 2.85rem;
-  border: 1.5px solid var(--itu-borde);
+  padding: 0.9rem 1rem 0.9rem 2.75rem;
+  border: 1.5px solid #dde3e3;
   border-radius: 10px;
-  background: var(--itu-blanco);
-  font-size: 0.9375rem;
-  color: var(--itu-texto);
+  background: #ffffff;
+  font-size: 0.9rem;
+  color: #1a1a1a;
   transition:
     border-color 0.25s ease,
     box-shadow 0.25s ease;
 }
 
 .input-group__field::placeholder {
-  color: var(--itu-texto-suave);
+  color: #b0b0b0;
 }
 
 .input-group__field:hover {
-  border-color: var(--itu-azul-claro);
+  border-color: #b0c8c9;
 }
 
 .input-group__field:focus {
   outline: none;
-  border-color: var(--itu-teal);
-  box-shadow: 0 0 0 3.5px rgba(10, 63, 67, 0.15);
+  border-color: var(--itu-teal, #0a3f43);
+  box-shadow: 0 0 0 3.5px rgba(10, 63, 67, 0.12);
 }
 
 .input-group__field:focus ~ .input-group__icon {
-  color: var(--itu-teal);
+  color: var(--itu-teal, #0a3f43);
 }
 
 /* Password visibility toggle */
 .input-group__toggle {
   position: absolute;
   top: 50%;
-  right: 0.85rem;
+  right: 0.75rem;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  color: var(--itu-texto-suave);
+  color: #aaa;
+  background: none;
+  border: none;
+  cursor: pointer;
   transition:
     color 0.2s,
     background 0.2s;
 }
 
 .input-group__toggle:hover {
-  color: var(--itu-teal);
-  background: var(--itu-teal-suave);
+  color: var(--itu-teal, #0a3f43);
+  background: #e4eeef;
 }
 
 .input-group__toggle svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- Forgot password ---------- */
+.login-forgot {
+  text-align: center;
+  font-size: 0.8125rem;
+  color: #888;
+  text-decoration: none;
+  font-weight: 400;
+  transition: color 0.2s;
+  margin-top: -0.25rem;
+}
+
+.login-forgot:hover {
+  color: var(--itu-teal, #0a3f43);
 }
 
 /* ---------- Submit Button ---------- */
 .login-btn {
   position: relative;
   width: 100%;
-  padding: 0.95rem;
+  padding: 0.9rem;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(
-    145deg,
-    var(--itu-azul-institucional),
-    var(--itu-teal)
-  );
-  color: var(--itu-blanco);
-  font-size: 1rem;
-  font-weight: 650;
-  letter-spacing: 0.02em;
+  background: var(--itu-azul-institucional, #0a3f43);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
   overflow: hidden;
+  margin-top: 0.25rem;
   transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.login-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.12),
-    transparent
-  );
-  opacity: 0;
-  transition: opacity 0.25s ease;
+    box-shadow 0.2s ease,
+    background 0.3s ease;
 }
 
 .login-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(10, 63, 67, 0.3);
-}
-
-.login-btn:hover::before {
-  opacity: 1;
+  box-shadow: 0 6px 22px rgba(10, 63, 67, 0.3);
+  background: var(--itu-azul-medio, #0d5259);
 }
 
 .login-btn:active {
@@ -286,7 +219,7 @@
   width: 20px;
   height: 20px;
   border: 2.5px solid rgba(255, 255, 255, 0.3);
-  border-top-color: var(--itu-blanco);
+  border-top-color: #ffffff;
   border-radius: 50%;
   animation: spin 0.65s linear infinite;
   margin: 0 auto;
@@ -305,7 +238,9 @@
 }
 
 @keyframes spin {
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 /* ---------- Error message ---------- */
@@ -313,13 +248,14 @@
   display: none;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.7rem 1rem;
+  padding: 0.65rem 0.9rem;
   border-radius: 8px;
-  background: var(--stock-agotado-bg);
-  border: 1px solid var(--stock-agotado-borde);
-  color: var(--stock-agotado);
-  font-size: 0.8125rem;
+  background: #ffebee;
+  border: 1px solid #ef5350;
+  color: #c62828;
+  font-size: 0.8rem;
   font-weight: 500;
+  margin-bottom: 0.5rem;
   animation: shake 0.4s ease;
 }
 
@@ -328,17 +264,28 @@
 }
 
 .login-error svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%      { transform: translateX(-6px); }
-  40%      { transform: translateX(5px); }
-  60%      { transform: translateX(-3px); }
-  80%      { transform: translateX(2px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
 }
 
 /* ---------- Footer ---------- */
@@ -346,25 +293,296 @@
   text-align: center;
   margin-top: 1.75rem;
   padding-top: 1.25rem;
-  border-top: 1px solid var(--itu-borde);
+  border-top: 1px solid #e5e5e5;
 }
 
 .login-footer__text {
-  font-size: 0.75rem;
-  color: var(--itu-texto-suave);
-  line-height: 1.45;
+  font-size: 0.72rem;
+  color: #999;
+  line-height: 1.5;
 }
 
 .login-footer__link {
-  color: var(--itu-azul-medio);
+  color: var(--itu-azul-medio, #0d5259);
   font-weight: 500;
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .login-footer__link:hover {
-  color: var(--itu-teal);
+  color: var(--itu-teal, #0a3f43);
   text-decoration: underline;
+}
+
+/* ==================== RIGHT PANEL (Branding) ==================== */
+.login-right {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--itu-azul-institucional, #0a3f43);
+}
+
+/* Background — blurred color shapes */
+.login-right__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 70% at 50% 40%,
+      rgba(211, 47, 47, 0.5) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 50% at 30% 70%,
+      rgba(26, 122, 130, 0.6) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 40% 60% at 70% 30%,
+      rgba(255, 152, 0, 0.35) 0%,
+      transparent 70%
+    ),
+    linear-gradient(
+      135deg,
+      var(--itu-azul-oscuro, #072e31) 0%,
+      var(--itu-azul-institucional, #0a3f43) 50%,
+      #0d5259 100%
+    );
+  filter: blur(45px);
+  transform: scale(1.2);
+  animation: bg-drift 20s ease-in-out infinite alternate;
+}
+
+@keyframes bg-drift {
+  0% {
+    transform: scale(1.2) translate(0, 0);
+  }
+  33% {
+    transform: scale(1.25) translate(15px, -10px);
+  }
+  66% {
+    transform: scale(1.18) translate(-10px, 15px);
+  }
+  100% {
+    transform: scale(1.22) translate(5px, -5px);
+  }
+}
+
+/* Semi-transparent overlay for contrast */
+.login-right__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 63, 67, 0.35);
+  backdrop-filter: blur(2px);
+}
+
+/* Content on right panel */
+.login-right__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  animation: content-fade-in 1s ease 0.3s both;
+}
+
+@keyframes content-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-right__logo {
+  width: 200px;
+  height: auto;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
+}
+
+/* ==================== ITU LOGO (HTML/CSS) ==================== */
+.itu-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  animation: logo-float 6s ease-in-out infinite;
+}
+
+@keyframes logo-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Letters container */
+.itu-logo__letters {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 120px;
+  margin-bottom: 12px;
+}
+
+/* ---- Letter "i" ---- */
+.itu-logo__i {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 32px;
+}
+
+.itu-logo__dot {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #d32f2f;
+  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.4);
+}
+
+.itu-logo__stem {
+  display: block;
+  width: 28px;
+  height: 68px;
+  background: #ffffff;
+  border-radius: 2px;
+}
+
+/* ---- Letter "t" ---- */
+.itu-logo__t {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50px;
+}
+
+.itu-logo__t-cross {
+  display: block;
+  width: 50px;
+  height: 22px;
+  background: #ffffff;
+  border-radius: 2px;
+}
+
+.itu-logo__t-stem {
+  display: block;
+  width: 28px;
+  height: 96px;
+  background: #ffffff;
+  border-radius: 2px;
+  margin-top: -1px;
+}
+
+/* ---- Letter "u" ---- */
+.itu-logo__u {
+  display: flex;
+  align-items: flex-start;
+  width: 60px;
+  height: 92px;
+  position: relative;
+}
+
+.itu-logo__u-left {
+  display: block;
+  width: 26px;
+  height: 92px;
+  background: #ffffff;
+  border-radius: 2px 2px 0 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.itu-logo__u-bottom {
+  display: block;
+  width: 60px;
+  height: 26px;
+  background: #ffffff;
+  border-radius: 0 0 14px 14px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.itu-logo__u-right {
+  display: block;
+  width: 26px;
+  height: 92px;
+  background: #ffffff;
+  border-radius: 2px 2px 0 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+/* ---- Red separator line ---- */
+.itu-logo__line {
+  width: 160px;
+  height: 3px;
+  background: #d32f2f;
+  border-radius: 2px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(211, 47, 47, 0.3);
+}
+
+/* ---- Text below logo ---- */
+.itu-logo__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.itu-logo__text-top {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+.itu-logo__text-bottom {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ==================== END ITU LOGO ==================== */
+
+.login-right__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.login-right__subtitle {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+  letter-spacing: 0.03em;
 }
 
 /* ---------- Page Footer ---------- */
@@ -376,27 +594,79 @@
   text-align: center;
   padding: 0.85rem;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(10, 63, 67, 0.4);
   font-weight: 500;
   letter-spacing: 0.02em;
   z-index: 1;
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 480px) {
-  .login-card {
-    padding: 2rem 1.5rem 1.75rem;
-    border-radius: 12px;
+@media (max-width: 768px) {
+  .login-page {
+    padding: 0;
   }
 
-  .login-header__logo {
-    width: 52px;
-    height: 52px;
-    font-size: 1.15rem;
-    border-radius: 12px;
+  .login-container {
+    flex-direction: column-reverse;
+    min-height: 100vh;
+    border-radius: 0;
+    max-width: 100%;
+  }
+
+  .login-right {
+    min-height: 220px;
+    flex: 0 0 auto;
+  }
+
+  .itu-logo__letters {
+    height: 80px;
+    gap: 4px;
+  }
+
+  .itu-logo__dot { width: 16px; height: 16px; }
+  .itu-logo__stem { width: 20px; height: 46px; }
+  .itu-logo__i { width: 22px; gap: 6px; }
+  .itu-logo__t { width: 36px; }
+  .itu-logo__t-cross { width: 36px; height: 16px; }
+  .itu-logo__t-stem { width: 20px; height: 64px; }
+  .itu-logo__u { width: 42px; height: 62px; }
+  .itu-logo__u-left,
+  .itu-logo__u-right { width: 18px; height: 62px; }
+  .itu-logo__u-bottom { width: 42px; height: 18px; }
+  .itu-logo__line { width: 110px; }
+  .itu-logo__text-top { font-size: 0.65rem; }
+  .itu-logo__text-bottom { font-size: 0.8rem; }
+
+  .login-left {
+    flex: 1;
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-left {
+    padding: 1.5rem 1.25rem;
   }
 
   .login-header__title {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
+  }
+
+  .login-right {
+    min-height: 180px;
   }
 }
+
+/* ---------- Accessibility ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
