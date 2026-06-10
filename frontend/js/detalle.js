@@ -231,16 +231,27 @@
   const toastEl = document.getElementById("detail-toast");
   const toastMsg = document.getElementById("toast-msg");
 
+  // Notes DOM refs
+  const notesList = document.getElementById("notes-list");
+  const notesCount = document.getElementById("notes-count");
+  const notesEmpty = document.getElementById("notes-empty");
+  const noteType = document.getElementById("note-type");
+  const noteInput = document.getElementById("note-input");
+  const btnAddNote = document.getElementById("btn-add-note");
+
   // ── State ──
   let currentProduct = null;
   let isEditingSpecs = false;
   let originalStockValues = {};
+  let activeNotes = [];
 
   // ── Spec field icons (inline SVG strings) ──
   const specIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/></svg>`;
 
   // ── Init ──
   function init() {
+    loadInventory();
+
     const params = new URLSearchParams(window.location.search);
     const codigo = params.get("codigo") || "INV-2024-001";
 
@@ -284,6 +295,10 @@
     stockMinimo.value = product.stock.minimo;
     stockEstado.value = product.stock.estado;
     stockUbicacion.value = product.ubicacion || "";
+
+    // Render Notes
+    activeNotes = JSON.parse(JSON.stringify(product.notes || []));
+    renderNotes(activeNotes);
 
     saveOriginalStock();
     updateMeter();
@@ -379,8 +394,14 @@
     currentProduct.stock.estado = stockEstado.value;
     currentProduct.ubicacion = stockUbicacion.value;
 
+    // Save active notes to current product
+    currentProduct.notes = JSON.parse(JSON.stringify(activeNotes));
+
     saveOriginalStock();
     updateMeter();
+
+    // Persist to localStorage
+    saveInventory();
 
     // TODO: Enviar datos al backend
     // fetch("/api/productos/" + currentProduct.codigo, { method: "PUT", ... })
@@ -394,6 +415,10 @@
     stockEstado.value = originalStockValues.estado;
     stockUbicacion.value = originalStockValues.ubicacion;
 
+    // Reset notes to original state
+    activeNotes = JSON.parse(JSON.stringify(currentProduct.notes || []));
+    renderNotes(activeNotes);
+
     // Also reset specs
     if (isEditingSpecs) {
       toggleEditSpecs();
@@ -402,6 +427,108 @@
 
     updateMeter();
     showToast("Cambios descartados.");
+  }
+
+  // ── Notes rendering and management ──
+  const NOTE_BADGE_LABELS = {
+    info: "ℹ️ Info",
+    defecto: "⚠️ Defecto",
+    reemplazo: "🔄 Reemplazo",
+    mantenimiento: "🔧 Mantenimiento",
+  };
+
+  function renderNotes(notes) {
+    const notesCountText = notes.length === 1 ? "1 nota" : `${notes.length} notas`;
+    notesCount.textContent = notesCountText;
+
+    // Remove existing notes elements, but keep the empty placeholder
+    const items = notesList.querySelectorAll(".detail-notes__item");
+    items.forEach(el => el.remove());
+
+    if (notes.length === 0) {
+      notesEmpty.style.display = "flex";
+      return;
+    }
+
+    notesEmpty.style.display = "none";
+
+    notes.forEach((note) => {
+      const itemEl = document.createElement("div");
+      itemEl.className = "detail-notes__item";
+      itemEl.innerHTML = `
+        <div class="detail-notes__item-header">
+          <div class="detail-notes__item-left">
+            <span class="detail-notes__item-badge detail-notes__item-badge--${escapeHtml(note.tipo)}">
+              ${escapeHtml(NOTE_BADGE_LABELS[note.tipo] || note.tipo)}
+            </span>
+            <span class="detail-notes__item-date">${escapeHtml(note.fecha)}</span>
+          </div>
+          <button type="button" class="detail-notes__item-delete" aria-label="Eliminar nota">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+          </button>
+        </div>
+        <p class="detail-notes__item-text">${escapeHtml(note.texto)}</p>
+      `;
+
+      itemEl.querySelector(".detail-notes__item-delete").addEventListener("click", () => {
+        handleDeleteNote(note.id);
+      });
+
+      notesList.appendChild(itemEl);
+    });
+  }
+
+  function handleAddNote() {
+    const text = noteInput.value.trim();
+    if (!text) {
+      showToast("Escribí algún texto para agregar la nota.");
+      return;
+    }
+
+    const newNote = {
+      id: Date.now(),
+      tipo: noteType.value,
+      texto: text,
+      fecha: new Date().toLocaleString("es-AR", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      })
+    };
+
+    activeNotes.push(newNote);
+    noteInput.value = "";
+    renderNotes(activeNotes);
+  }
+
+  function handleDeleteNote(noteId) {
+    activeNotes = activeNotes.filter(n => n.id !== noteId);
+    renderNotes(activeNotes);
+  }
+
+  // ── Inventory localStorage persistence ──
+  function loadInventory() {
+    const saved = localStorage.getItem("itu_inventario");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          INVENTARIO_DEMO.length = 0;
+          parsed.forEach(item => INVENTARIO_DEMO.push(item));
+        }
+      } catch (e) { /* ignore parse errors */ }
+    }
+  }
+
+  function saveInventory() {
+    localStorage.setItem("itu_inventario", JSON.stringify(INVENTARIO_DEMO));
   }
 
   // ── Toast ──
@@ -426,6 +553,15 @@
     btnEditSpecs.addEventListener("click", toggleEditSpecs);
     btnSave.addEventListener("click", handleSave);
     btnDiscard.addEventListener("click", handleDiscard);
+    btnAddNote.addEventListener("click", handleAddNote);
+
+    // Enter adds note, Shift+Enter inputs newline
+    noteInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleAddNote();
+      }
+    });
 
     // Live meter update
     stockActual.addEventListener("input", updateMeter);
