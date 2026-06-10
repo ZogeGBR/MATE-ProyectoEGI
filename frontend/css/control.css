@@ -1,0 +1,236 @@
+/* ================================================================
+   CONTROL DE ACCESO — Estilos específicos
+   ITU UNCUYO · Sistema de inventario
+   ================================================================ */
+
+/* Summary cards */
+.control-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.control-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  background: var(--itu-superficie, #ffffff);
+  border: 1px solid var(--itu-borde, #d5d5d5);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(10, 63, 67, 0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.control-card:hover {
+  box-shadow: 0 4px 12px rgba(10, 63, 67, 0.1);
+  transform: translateY(-2px);
+}
+
+.control-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.control-card__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.control-card__icon--total {
+  background: var(--itu-teal-suave, #e4eeef);
+  color: var(--itu-azul-institucional, #0a3f43);
+}
+
+.control-card__icon--active {
+  background: var(--stock-disponible-bg, #e8f5e9);
+  color: var(--stock-disponible, #2e7d32);
+}
+
+.control-card__icon--inactive {
+  background: var(--stock-agotado-bg, #ffebee);
+  color: var(--stock-agotado, #c62828);
+}
+
+.control-card__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--itu-texto, #1a1a1a);
+  line-height: 1;
+}
+
+.control-card__label {
+  font-size: 0.75rem;
+  color: var(--itu-texto-suave, #888);
+  margin-top: 0.15rem;
+}
+
+/* Table adjustments */
+.control-table th,
+.control-table td {
+  white-space: nowrap;
+}
+
+.col-actions {
+  width: 10rem;
+  text-align: center;
+}
+
+/* User avatar in table */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.user-cell__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--itu-teal-suave, #e4eeef);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--itu-azul-institucional, #0a3f43);
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.user-cell__name {
+  font-weight: 600;
+  color: var(--itu-texto, #1a1a1a);
+  font-size: 0.875rem;
+}
+
+/* Role badge */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.role-badge--admin {
+  background: rgba(10, 63, 67, 0.1);
+  color: var(--itu-azul-institucional, #0a3f43);
+}
+
+.role-badge--operador {
+  background: rgba(230, 81, 0, 0.1);
+  color: #e65100;
+}
+
+.role-badge--lectura {
+  background: rgba(85, 85, 85, 0.1);
+  color: #555;
+}
+
+/* Status badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.status-badge__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.status-badge--activo {
+  background: var(--stock-disponible-bg, #e8f5e9);
+  color: var(--stock-disponible, #2e7d32);
+}
+
+.status-badge--activo .status-badge__dot {
+  background: var(--stock-disponible, #2e7d32);
+}
+
+.status-badge--inactivo {
+  background: var(--stock-agotado-bg, #ffebee);
+  color: var(--stock-agotado, #c62828);
+}
+
+.status-badge--inactivo .status-badge__dot {
+  background: var(--stock-agotado, #c62828);
+}
+
+/* Action buttons */
+.action-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.action-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--itu-texto-suave, #888);
+  transition: background 0.15s, color 0.15s;
+}
+
+.action-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.action-btn:hover {
+  background: var(--itu-teal-suave, #e4eeef);
+  color: var(--itu-azul-institucional, #0a3f43);
+}
+
+.action-btn--danger:hover {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* Last access date */
+.access-date {
+  font-size: 0.8rem;
+  color: var(--itu-texto-secundario, #555);
+}
+
+/* Page header adjustments for control */
+.page-header__actions {
+  align-items: flex-end;
+}
+
+@media (max-width: 720px) {
+  .control-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .control-table th:nth-child(5),
+  .control-table td:nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .control-table th:nth-child(2),
+  .control-table td:nth-child(2) {
+    display: none;
+  }
+}

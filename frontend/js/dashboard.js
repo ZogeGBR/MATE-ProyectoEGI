@@ -432,4 +432,128 @@ btnClearFilters.addEventListener("click", clearFilters);
 btnPagePrev.addEventListener("click", () => goToPage(currentPage - 1));
 btnPageNext.addEventListener("click", () => goToPage(currentPage + 1));
 
+// ========================================================
+// PERSIST INVENTORY IN LOCALSTORAGE
+// ========================================================
+function saveInventory() {
+  localStorage.setItem("itu_inventario", JSON.stringify(INVENTARIO_DEMO));
+}
+
+// Load from localStorage if available
+(function loadInventory() {
+  const saved = localStorage.getItem("itu_inventario");
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        INVENTARIO_DEMO.length = 0;
+        parsed.forEach(item => INVENTARIO_DEMO.push(item));
+      }
+    } catch (e) { /* ignore parse errors */ }
+  }
+})();
+
+// ========================================================
+// ADD ITEM MODAL
+// ========================================================
+const btnAddItem = document.getElementById("btn-add-item");
+const modalOverlay = document.getElementById("modal-overlay");
+const modalClose = document.getElementById("modal-close");
+const modalCancel = document.getElementById("modal-cancel");
+const formAddItem = document.getElementById("form-add-item");
+const modalError = document.getElementById("modal-error");
+const modalErrorMsg = document.getElementById("modal-error-msg");
+const newCodigo = document.getElementById("new-codigo");
+const toastEl = document.getElementById("dashboard-toast");
+const toastMsg = document.getElementById("dashboard-toast-msg");
+
+function generateCode() {
+  const year = new Date().getFullYear();
+  const existing = INVENTARIO_DEMO
+    .map(i => i.codigo)
+    .filter(c => c.startsWith(`INV-${year}-`))
+    .map(c => parseInt(c.split("-")[2], 10))
+    .filter(n => !isNaN(n));
+  const next = existing.length > 0 ? Math.max(...existing) + 1 : 1;
+  return `INV-${year}-${String(next).padStart(3, "0")}`;
+}
+
+function openModal() {
+  formAddItem.reset();
+  modalError.hidden = true;
+  newCodigo.value = generateCode();
+  modalOverlay.hidden = false;
+  document.body.style.overflow = "hidden";
+  document.getElementById("new-nombre").focus();
+}
+
+function closeModal() {
+  modalOverlay.hidden = true;
+  document.body.style.overflow = "";
+}
+
+function showModalError(msg) {
+  modalErrorMsg.textContent = msg;
+  modalError.hidden = false;
+  // Re-trigger shake
+  modalError.style.animation = "none";
+  void modalError.offsetWidth;
+  modalError.style.animation = "";
+}
+
+function showToast(message) {
+  toastMsg.textContent = message;
+  toastEl.classList.add("dashboard-toast--visible");
+  setTimeout(() => {
+    toastEl.classList.remove("dashboard-toast--visible");
+  }, 3000);
+}
+
+btnAddItem.addEventListener("click", openModal);
+modalClose.addEventListener("click", closeModal);
+modalCancel.addEventListener("click", closeModal);
+
+modalOverlay.addEventListener("click", (e) => {
+  if (e.target === modalOverlay) closeModal();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !modalOverlay.hidden) closeModal();
+});
+
+formAddItem.addEventListener("submit", (e) => {
+  e.preventDefault();
+  modalError.hidden = true;
+
+  const nombre = document.getElementById("new-nombre").value.trim();
+  const categoria = document.getElementById("new-categoria").value;
+  const fisicas = document.getElementById("new-fisicas").value;
+  const resumen = document.getElementById("new-resumen").value.trim();
+  const stockActual = parseInt(document.getElementById("new-stock").value, 10) || 0;
+  const stockMinimo = parseInt(document.getElementById("new-minimo").value, 10) || 0;
+  const stockEstado = document.getElementById("new-estado").value;
+
+  if (!nombre) { showModalError("Ingresá el nombre del producto."); return; }
+  if (!categoria) { showModalError("Seleccioná una categoría."); return; }
+  if (!fisicas) { showModalError("Seleccioná las características físicas."); return; }
+  if (!resumen) { showModalError("Ingresá una descripción o resumen."); return; }
+
+  const newItem = {
+    codigo: newCodigo.value,
+    nombre,
+    imagen: "assets/thumbnails/placeholder.svg",
+    resumen,
+    categoria,
+    fisicas,
+    stock: { actual: stockActual, minimo: stockMinimo, estado: stockEstado },
+  };
+
+  INVENTARIO_DEMO.push(newItem);
+  saveInventory();
+  closeModal();
+  renderTable(true);
+  showToast(`"${nombre}" agregado al inventario.`);
+});
+
 renderTable(true);
+

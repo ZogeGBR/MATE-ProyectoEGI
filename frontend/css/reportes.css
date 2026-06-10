@@ -1,0 +1,293 @@
+/* ================================================================
+   REPORTES — Estilos específicos
+   ITU UNCUYO · Sistema de inventario
+   ================================================================ */
+
+/* Stats cards */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.25rem 1rem;
+  background: var(--itu-superficie, #ffffff);
+  border: 1px solid var(--itu-borde, #d5d5d5);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(10, 63, 67, 0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
+}
+
+.stat-card--total::before { background: var(--itu-azul-institucional, #0a3f43); }
+.stat-card--disponible::before { background: var(--stock-disponible, #2e7d32); }
+.stat-card--revision::before { background: var(--stock-revision, #e65100); }
+.stat-card--agotado::before { background: var(--stock-agotado, #c62828); }
+.stat-card--units::before { background: var(--itu-azul-claro, #1a7a82); }
+
+.stat-card:hover {
+  box-shadow: 0 4px 12px rgba(10, 63, 67, 0.1);
+  transform: translateY(-2px);
+}
+
+.stat-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.65rem;
+}
+
+.stat-card__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.stat-card--total .stat-card__icon { background: var(--itu-teal-suave, #e4eeef); color: var(--itu-azul-institucional, #0a3f43); }
+.stat-card--disponible .stat-card__icon { background: var(--stock-disponible-bg, #e8f5e9); color: var(--stock-disponible, #2e7d32); }
+.stat-card--revision .stat-card__icon { background: var(--stock-revision-bg, #fff3e0); color: var(--stock-revision, #e65100); }
+.stat-card--agotado .stat-card__icon { background: var(--stock-agotado-bg, #ffebee); color: var(--stock-agotado, #c62828); }
+.stat-card--units .stat-card__icon { background: rgba(26, 122, 130, 0.1); color: var(--itu-azul-claro, #1a7a82); }
+
+.stat-card__value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--itu-texto, #1a1a1a);
+  line-height: 1;
+}
+
+.stat-card__label {
+  font-size: 0.7rem;
+  color: var(--itu-texto-suave, #888);
+  margin-top: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+/* Charts row */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.chart-panel {
+  background: var(--itu-superficie, #ffffff);
+  border: 1px solid var(--itu-borde, #d5d5d5);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(10, 63, 67, 0.06);
+  overflow: hidden;
+}
+
+.chart-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--itu-azul-institucional, #0a3f43);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--itu-borde, #d5d5d5);
+  background: linear-gradient(135deg, rgba(10, 63, 67, 0.03), rgba(26, 122, 130, 0.05));
+}
+
+.chart-panel__title svg {
+  width: 18px;
+  height: 18px;
+  color: var(--itu-teal-claro, #1a7a82);
+}
+
+.chart-panel__body {
+  padding: 1.25rem;
+}
+
+/* Donut chart */
+.donut-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.donut-svg {
+  width: 180px;
+  height: 180px;
+}
+
+.donut-svg circle {
+  fill: none;
+  stroke-width: 30;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.donut-center-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  fill: var(--itu-texto, #1a1a1a);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.donut-center-label {
+  font-size: 0.45rem;
+  fill: var(--itu-texto-suave, #888);
+  text-anchor: middle;
+  dominant-baseline: central;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+/* Chart legend */
+.chart-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  justify-content: center;
+}
+
+.chart-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--itu-texto-secundario, #555);
+}
+
+.chart-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.chart-legend__count {
+  font-weight: 700;
+  color: var(--itu-texto, #1a1a1a);
+}
+
+/* Bar chart */
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  height: 220px;
+  padding: 0.5rem 0;
+}
+
+.bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  height: 100%;
+}
+
+.bar-track {
+  flex: 1;
+  width: 100%;
+  max-width: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.bar-fill {
+  width: 100%;
+  border-radius: 6px 6px 2px 2px;
+  transition: height 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  min-height: 4px;
+}
+
+.bar-fill__value {
+  position: absolute;
+  top: -1.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--itu-texto, #1a1a1a);
+  white-space: nowrap;
+}
+
+.bar-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--itu-texto-suave, #888);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 64px;
+}
+
+/* Alert panel */
+.alert-panel-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--itu-borde, #d5d5d5);
+  background: linear-gradient(135deg, rgba(198, 40, 40, 0.03), rgba(230, 81, 0, 0.04));
+}
+
+.alert-panel-header__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--stock-agotado, #c62828);
+}
+
+.alert-panel-header__title svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Responsive */
+@media (max-width: 860px) {
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bar-chart {
+    height: 160px;
+  }
+}
