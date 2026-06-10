@@ -83,20 +83,7 @@
           <li><a href="#" class="sidebar__link sidebar__link--sub" data-cat="herramientas">Herramientas</a></li>
         </ul>
 
-        <!-- Other -->
-        <p class="sidebar__section-title">OTRO</p>
-        <ul class="sidebar__menu">
-          <li>
-            <a href="#" class="sidebar__link" id="nav-config">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-              </svg>
-              Configuración
-            </a>
-          </li>
-        </ul>
+
       </nav>
 
       <!-- Footer card -->
@@ -135,12 +122,93 @@
         <!-- Right icons -->
         <div class="topbar__right">
           <span class="topbar__date" id="header-fecha"></span>
-          <div class="topbar__avatar" aria-label="Usuario">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
+
+          <!-- Dark mode quick toggle -->
+          <button class="topbar__icon-btn" id="topbar-dark-toggle" aria-label="Alternar modo oscuro">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
             </svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+
+          <!-- User avatar + dropdown -->
+          <div class="user-menu" id="user-menu">
+            <button class="topbar__avatar" id="user-avatar-btn" aria-label="Menú de usuario" aria-haspopup="true" aria-expanded="false">
+              <img id="avatar-preview" class="topbar__avatar-img" src="" alt="Foto de perfil" style="display:none" />
+              <svg id="avatar-default-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </button>
+
+            <!-- Dropdown -->
+            <div class="user-dropdown" id="user-dropdown" role="menu">
+              <div class="user-dropdown__header">
+                <div class="user-dropdown__avatar-wrapper">
+                  <img id="dropdown-avatar-preview" class="user-dropdown__avatar-img" src="" alt="Foto de perfil" style="display:none" />
+                  <svg id="dropdown-avatar-icon" class="user-dropdown__avatar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <label class="user-dropdown__photo-btn" for="profile-photo-input" title="Cambiar foto de perfil">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                  </label>
+                  <input type="file" id="profile-photo-input" accept="image/*" class="sr-only" />
+                </div>
+                <div class="user-dropdown__info">
+                  <p class="user-dropdown__name" id="dropdown-user-name">Usuario</p>
+                  <p class="user-dropdown__email" id="dropdown-user-email">usuario@itu.uncuyo.edu.ar</p>
+                </div>
+              </div>
+
+              <div class="user-dropdown__divider"></div>
+
+              <!-- Dark mode toggle -->
+              <button class="user-dropdown__item" id="dropdown-dark-mode" role="menuitem">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+                <span>Modo oscuro</span>
+                <div class="toggle-switch" id="dark-mode-switch">
+                  <div class="toggle-switch__track">
+                    <div class="toggle-switch__thumb"></div>
+                  </div>
+                </div>
+              </button>
+
+              <!-- Configuración -->
+              <a href="#" class="user-dropdown__item" id="dropdown-config" role="menuitem">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                <span>Configuración</span>
+              </a>
+
+              <div class="user-dropdown__divider"></div>
+
+              <!-- Cerrar sesión -->
+              <button class="user-dropdown__item user-dropdown__item--danger" id="dropdown-logout" role="menuitem">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span>Cerrar sesión</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -306,6 +374,148 @@
           toggleSidebar();
         }
       });
+    });
+
+    // ========================================================
+    // USER DROPDOWN MENU
+    // ========================================================
+    const userAvatarBtn = document.getElementById("user-avatar-btn");
+    const userDropdown = document.getElementById("user-dropdown");
+
+    userAvatarBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = userDropdown.classList.toggle("user-dropdown--open");
+      userAvatarBtn.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener("click", (e) => {
+      if (!document.getElementById("user-menu").contains(e.target)) {
+        userDropdown.classList.remove("user-dropdown--open");
+        userAvatarBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    // Close dropdown on Escape
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        userDropdown.classList.remove("user-dropdown--open");
+        userAvatarBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    // ========================================================
+    // PROFILE PHOTO UPLOAD
+    // ========================================================
+    const profilePhotoInput = document.getElementById("profile-photo-input");
+    const avatarPreview = document.getElementById("avatar-preview");
+    const avatarDefaultIcon = document.getElementById("avatar-default-icon");
+    const dropdownAvatarPreview = document.getElementById("dropdown-avatar-preview");
+    const dropdownAvatarIcon = document.getElementById("dropdown-avatar-icon");
+
+    function setProfilePhoto(dataUrl) {
+      if (dataUrl) {
+        avatarPreview.src = dataUrl;
+        avatarPreview.style.display = "block";
+        avatarDefaultIcon.style.display = "none";
+        dropdownAvatarPreview.src = dataUrl;
+        dropdownAvatarPreview.style.display = "block";
+        dropdownAvatarIcon.style.display = "none";
+      } else {
+        avatarPreview.style.display = "none";
+        avatarDefaultIcon.style.display = "";
+        dropdownAvatarPreview.style.display = "none";
+        dropdownAvatarIcon.style.display = "";
+      }
+    }
+
+    // Load saved photo
+    const savedPhoto = localStorage.getItem("itu_profile_photo");
+    if (savedPhoto) {
+      setProfilePhoto(savedPhoto);
+    }
+
+    profilePhotoInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Validate file type and size (max 2MB)
+      if (!file.type.startsWith("image/")) return;
+      if (file.size > 2 * 1024 * 1024) {
+        alert("La imagen no puede superar los 2 MB.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
+        setProfilePhoto(dataUrl);
+        localStorage.setItem("itu_profile_photo", dataUrl);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // ========================================================
+    // DARK MODE
+    // ========================================================
+    const topbarDarkToggle = document.getElementById("topbar-dark-toggle");
+    const dropdownDarkMode = document.getElementById("dropdown-dark-mode");
+    const darkModeSwitch = document.getElementById("dark-mode-switch");
+    const iconSun = document.querySelector(".icon-sun");
+    const iconMoon = document.querySelector(".icon-moon");
+
+    function applyDarkMode(isDark) {
+      document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+      localStorage.setItem("itu_dark_mode", isDark ? "1" : "0");
+
+      // Update toggle switch
+      if (isDark) {
+        darkModeSwitch.classList.add("toggle-switch--active");
+        iconSun.style.display = "none";
+        iconMoon.style.display = "";
+      } else {
+        darkModeSwitch.classList.remove("toggle-switch--active");
+        iconSun.style.display = "";
+        iconMoon.style.display = "none";
+      }
+    }
+
+    // Initialize from saved preference
+    const savedDark = localStorage.getItem("itu_dark_mode");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDarkMode = savedDark !== null ? savedDark === "1" : prefersDark;
+    applyDarkMode(isDarkMode);
+
+    topbarDarkToggle.addEventListener("click", () => {
+      const currentlyDark = document.documentElement.getAttribute("data-theme") === "dark";
+      applyDarkMode(!currentlyDark);
+    });
+
+    dropdownDarkMode.addEventListener("click", (e) => {
+      e.stopPropagation(); // Keep dropdown open
+      const currentlyDark = document.documentElement.getAttribute("data-theme") === "dark";
+      applyDarkMode(!currentlyDark);
+    });
+
+    // ========================================================
+    // USER INFO FROM SESSION
+    // ========================================================
+    const dropdownUserName = document.getElementById("dropdown-user-name");
+    const dropdownUserEmail = document.getElementById("dropdown-user-email");
+
+    const sessionUser = JSON.parse(localStorage.getItem("itu_session_user") || "null");
+    if (sessionUser) {
+      dropdownUserName.textContent = sessionUser.name || "Usuario";
+      dropdownUserEmail.textContent = sessionUser.email || "usuario@itu.uncuyo.edu.ar";
+    }
+
+    // ========================================================
+    // LOGOUT
+    // ========================================================
+    document.getElementById("dropdown-logout").addEventListener("click", () => {
+      localStorage.removeItem("itu_session_user");
+      localStorage.removeItem("itu_profile_photo");
+      window.location.href = "login.html";
     });
   </script>
   <script src="js/dashboard.js" defer></script>

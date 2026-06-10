@@ -124,6 +124,12 @@
       const loginExitoso = true;
 
       if (loginExitoso) {
+        // Guardar sesión del usuario
+        const userName = email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+        localStorage.setItem("itu_session_user", JSON.stringify({
+          name: userName,
+          email: email,
+        }));
         // Redirigir al dashboard (inventario)
         window.location.href = "index.html";
       } else {
