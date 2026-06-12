@@ -1,0 +1,8 @@
+Integrante 4 — Kubernetes y Contenedores
+Computación en la Nube · Docker · OpenLDAP · kubectl
+•  Crear el Dockerfile del frontend (imagen base Node o Python + dependencias)
+•  Escribir los manifiestos YAML: Deployment, Service, ConfigMap y Secret para todos los pods
+•  Desplegar OpenLDAP (imagen osixia/openldap) y crear 3 usuarios: admin, docente, alumno
+•  Configurar NodePort del frontend para acceso externo desde la IP de Minikube
+•  Integrar y probar el ecosistema completo. Escribir el README con pasos de despliegue
+
