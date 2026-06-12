@@ -33,8 +33,8 @@
     iconClosed.style.display = isPassword ? "block" : "none";
 
     toggleBtn.setAttribute(
-      "aria-label",
-      isPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+        "aria-label",
+        isPassword ? "Ocultar contraseña" : "Mostrar contraseña"
     );
 
     // Devolver el foco al campo
@@ -104,38 +104,44 @@
       return;
     }
 
-    // --- Simulate auth request ---
+    // --- Llamada real al backend Flask → OpenLDAP ---
     setLoading(true);
 
-    // TODO: Reemplazar con llamada real al backend (OpenLDAP)
-    // Ejemplo:
-    //   fetch("/api/login", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ email, password }),
-    //   })
-    //   .then(res => { ... })
+    fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+        .then(function (res) {
+          return res.json().then(function (data) {
+            return { ok: res.ok, data };
+          });
+        })
+        .then(function ({ ok, data }) {
+          setLoading(false);
 
-    setTimeout(function () {
-      setLoading(false);
+          if (ok && data.ok) {
+            // Guardar sesión del usuario
+            const userName = email
+                .split("@")[0]
+                .replace(/[._-]/g, " ")
+                .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
 
-      // Simulación: aceptar cualquier credencial válida
-      // En producción esto se valida contra OpenLDAP
-      const loginExitoso = true;
+            localStorage.setItem("itu_session_user", JSON.stringify({
+              name: userName,
+              email: email,
+            }));
 
-      if (loginExitoso) {
-        // Guardar sesión del usuario
-        const userName = email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-        localStorage.setItem("itu_session_user", JSON.stringify({
-          name: userName,
-          email: email,
-        }));
-        // Redirigir al dashboard (inventario)
-        window.location.href = "index.html";
-      } else {
-        showError("Credenciales incorrectas. Inténtalo de nuevo.");
-      }
-    }, 1200);
+            // Redirigir al dashboard (inventario)
+            window.location.href = "index.html";
+          } else {
+            showError(data.error || "Credenciales incorrectas. Inténtalo de nuevo.");
+          }
+        })
+        .catch(function () {
+          setLoading(false);
+          showError("Error de conexión con el servidor. Verificá que el servicio esté activo.");
+        });
   });
 
   // ── Limpiar error al escribir ──

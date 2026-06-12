@@ -1,91 +1,14 @@
 /**
  * Dashboard — tabla de inventario con paginación y resumen por página.
+ * Integración real con MySQL vía /api/equipos
  */
 
 const PAGE_SIZE = 5;
 
-const INVENTARIO_DEMO = [
-  {
-    codigo: "INV-2024-001",
-    nombre: "Multímetro digital Fluke 117",
-    imagen: "assets/thumbnails/multimetro.svg",
-    resumen:
-      "Medición AC/DC hasta 600 V · True RMS · Portátil · Lab. Electricidad",
-    categoria: "instrumentacion",
-    fisicas: "portatil",
-    stock: { actual: 4, minimo: 2, estado: "disponible" },
-  },
-  {
-    codigo: "INV-2024-014",
-    nombre: "Osciloscopio 4 canales 100 MHz",
-    imagen: "assets/thumbnails/osciloscopio.svg",
-    resumen:
-      "4 canales · 100 MHz · De mesa · Lab. Electrónica — en préstamo activo",
-    categoria: "instrumentacion",
-    fisicas: "mesa",
-    stock: { actual: 2, minimo: 2, estado: "revision" },
-  },
-  {
-    codigo: "INV-2023-089",
-    nombre: "Notebook Dell Latitude 5540",
-    imagen: "assets/thumbnails/notebook.svg",
-    resumen:
-      "Intel i7 · 16 GB RAM · 512 GB SSD · Portátil · Sala de cómputo 3",
-    categoria: "informatica",
-    fisicas: "portatil",
-    stock: { actual: 18, minimo: 5, estado: "disponible" },
-  },
-  {
-    codigo: "INV-2022-201",
-    nombre: "Escritorio regulable 140×70 cm",
-    imagen: "assets/thumbnails/escritorio.svg",
-    resumen:
-      "Superficie 140×70 cm · Altura regulable · Voluminoso · Depósito central",
-    categoria: "mobiliario",
-    fisicas: "voluminoso",
-    stock: { actual: 1, minimo: 3, estado: "revision" },
-  },
-  {
-    codigo: "INV-2021-045",
-    nombre: "Proyector Epson EB-L200F",
-    imagen: "assets/thumbnails/proyector.svg",
-    resumen:
-      "Láser 3.600 lm · HDMI/Wi-Fi · Instalación fija · Aula magna",
-    categoria: "audiovisual",
-    fisicas: "fijo",
-    stock: { actual: 1, minimo: 1, estado: "disponible" },
-  },
-  {
-    codigo: "INV-2020-112",
-    nombre: "Taladro percutor industrial",
-    imagen: "assets/thumbnails/taladro.svg",
-    resumen:
-      "Percutor 800 W · Mandril 13 mm · Portátil · Taller mantenimiento",
-    categoria: "herramientas",
-    fisicas: "portatil",
-    stock: { actual: 3, minimo: 2, estado: "disponible" },
-  },
-  {
-    codigo: "INV-2019-078",
-    nombre: "Servidor rack 2U HP ProLiant",
-    imagen: "assets/thumbnails/servidor.svg",
-    resumen:
-      "Rack 2U · 32 GB RAM · Sin unidades en depósito · Sala de servidores",
-    categoria: "informatica",
-    fisicas: "rack",
-    stock: { actual: 0, minimo: 1, estado: "agotado" },
-  },
-  {
-    codigo: "INV-2024-033",
-    nombre: "Silla ergonómica oficina",
-    imagen: "assets/thumbnails/silla.svg",
-    resumen:
-      "Respaldo regulable · Tapizado gris · Voluminoso · Secretaría académica",
-    categoria: "mobiliario",
-    fisicas: "voluminoso",
-    stock: { actual: 0, minimo: 4, estado: "agotado" },
-  },
-];
+// INVENTARIO_DEMO se mantiene como array mutable que se rellena desde la API.
+// Toda la lógica de filtros, paginación y modal que ya existía sigue
+// funcionando sin cambios porque opera sobre este mismo array.
+const INVENTARIO_DEMO = [];
 
 const STOCK_LABELS = {
   disponible: "Disponible",
@@ -129,9 +52,9 @@ let currentPage = 1;
 
 function normalize(text) {
   return String(text)
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "");
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "");
 }
 
 function stockPercent(item) {
@@ -144,14 +67,14 @@ function stockPercent(item) {
 function matchesSearch(item, query) {
   if (!query) return true;
   const haystack = normalize(
-    [
-      item.codigo,
-      item.nombre,
-      item.resumen,
-      FILTER_LABELS.categoria[item.categoria],
-      FILTER_LABELS.fisicas[item.fisicas],
-      STOCK_LABELS[item.stock.estado],
-    ].join(" ")
+      [
+        item.codigo,
+        item.nombre,
+        item.resumen,
+        FILTER_LABELS.categoria[item.categoria],
+        FILTER_LABELS.fisicas[item.fisicas],
+        STOCK_LABELS[item.stock.estado],
+      ].join(" ")
   );
   return haystack.includes(normalize(query));
 }
@@ -192,12 +115,12 @@ function formatStateBreakdown(counts) {
   const parts = [];
   if (counts.disponible > 0) {
     parts.push(
-      `${counts.disponible} disponible${counts.disponible !== 1 ? "s" : ""}`
+        `${counts.disponible} disponible${counts.disponible !== 1 ? "s" : ""}`
     );
   }
   if (counts.revision > 0) {
     parts.push(
-      `${counts.revision} en revisión`
+        `${counts.revision} en revisión`
     );
   }
   if (counts.agotado > 0) {
@@ -219,9 +142,9 @@ function buildPageSummary(pageItems, filteredTotal, page, totalPages) {
   const end = start + pageCount - 1;
   const states = formatStateBreakdown(countByStockState(pageItems));
   const range =
-    filteredTotal <= PAGE_SIZE
-      ? `los <strong>${pageCount}</strong> elementos`
-      : `los elementos <strong>${start}–${end}</strong> de <strong>${filteredTotal}</strong>`;
+      filteredTotal <= PAGE_SIZE
+          ? `los <strong>${pageCount}</strong> elementos`
+          : `los elementos <strong>${start}–${end}</strong> de <strong>${filteredTotal}</strong>`;
 
   let text = `En esta página se muestran ${range}`;
   if (totalPages > 1) {
@@ -306,9 +229,10 @@ function renderRow(item) {
   const img = tr.querySelector("img");
   img.alt = `Imagen de ${item.nombre}`;
 
-  // Navigate to detail page on click
+  // Navegar al detalle pasando el mongo_id para que detalle.js
+  // pueda consultarlo en /api/equipos/:mongo_id
   tr.addEventListener("click", function () {
-    window.location.href = `detalle.html?codigo=${encodeURIComponent(item.codigo)}`;
+    window.location.href = `detalle.html?mongo_id=${encodeURIComponent(item.mongo_id)}&codigo=${encodeURIComponent(item.codigo)}`;
   });
 
   return tr;
@@ -394,9 +318,9 @@ function renderTable(resetPage = false) {
 
   const catalogTotal = INVENTARIO_DEMO.length;
   resultCount.textContent =
-    filteredTotal === catalogTotal
-      ? `${catalogTotal} productos registrados`
-      : `${filteredTotal} de ${catalogTotal} productos`;
+      filteredTotal === catalogTotal
+          ? `${catalogTotal} equipos registrados`
+          : `${filteredTotal} de ${catalogTotal} equipos`;
 
   const hasResults = filteredTotal > 0;
   emptyState.hidden = hasResults;
@@ -405,10 +329,10 @@ function renderTable(resetPage = false) {
 
   if (hasResults) {
     pageSummary.innerHTML = buildPageSummary(
-      pageItems,
-      filteredTotal,
-      currentPage,
-      totalPages
+        pageItems,
+        filteredTotal,
+        currentPage,
+        totalPages
     );
     renderPagination(totalPages);
   }
@@ -433,25 +357,90 @@ btnPagePrev.addEventListener("click", () => goToPage(currentPage - 1));
 btnPageNext.addEventListener("click", () => goToPage(currentPage + 1));
 
 // ========================================================
-// PERSIST INVENTORY IN LOCALSTORAGE
+// PERSISTENCIA EN LOCALSTORAGE (se mantiene para el modal de agregar)
 // ========================================================
 function saveInventory() {
   localStorage.setItem("itu_inventario", JSON.stringify(INVENTARIO_DEMO));
 }
 
-// Load from localStorage if available
-(function loadInventory() {
-  const saved = localStorage.getItem("itu_inventario");
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+// ========================================================
+// CARGA DESDE LA API REAL (MySQL vía Flask)
+// ========================================================
+
+/**
+ * Mapea una fila de SQL al formato que espera toda la lógica de UI.
+ * Los campos que MongoDB no provee aún (categoria, fisicas, stock)
+ * se inicializan con valores por defecto, listos para ser enriquecidos.
+ */
+function mapearEquipo(eq) {
+  return {
+    // Identificadores
+    codigo:    eq.numero_serie,
+    mongo_id:  eq.mongo_id,
+
+    // Presentación
+    nombre:    `Equipo ${eq.numero_serie}`,
+    imagen:    "assets/thumbnails/placeholder.svg",
+    resumen:   `${eq.laboratorio} · ${eq.aula} · Banco ${eq.numero_banco} · Resp: ${eq.nombre} ${eq.apellido}`,
+
+    // Clasificación (valores por defecto; el Integrante 3 puede enriquecer
+    // desde MongoDB en la vista de detalle)
+    categoria: "informatica",
+    fisicas:   "mesa",
+
+    // Stock operativo básico
+    stock: {
+      actual: 1,
+      minimo: 1,
+      estado: "disponible",
+    },
+
+    // Datos extra útiles para detalle
+    fecha_alta: eq.fecha_alta,
+    ubicacion:  `${eq.laboratorio} — ${eq.aula}`,
+  };
+}
+
+function cargarInventario() {
+  // Mostrar estado de carga
+  resultCount.textContent = "Cargando inventario…";
+
+  fetch("/api/equipos")
+      .then(function (res) {
+        if (!res.ok) throw new Error("Error HTTP " + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        // Limpiar el array y rellenarlo con datos reales
         INVENTARIO_DEMO.length = 0;
-        parsed.forEach(item => INVENTARIO_DEMO.push(item));
-      }
-    } catch (e) { /* ignore parse errors */ }
-  }
-})();
+        data.forEach(function (eq) {
+          INVENTARIO_DEMO.push(mapearEquipo(eq));
+        });
+
+        // Persistir en localStorage para que detalle.js también lo use
+        saveInventory();
+
+        renderTable(true);
+      })
+      .catch(function (err) {
+        console.error("Error cargando inventario desde la API:", err);
+        resultCount.textContent = "Error al cargar el inventario.";
+
+        // Fallback: intentar cargar desde localStorage si hay datos previos
+        const saved = localStorage.getItem("itu_inventario");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              INVENTARIO_DEMO.length = 0;
+              parsed.forEach(function (item) { INVENTARIO_DEMO.push(item); });
+              renderTable(true);
+              showToast("Mostrando datos en caché (sin conexión al servidor).");
+            }
+          } catch (e) { /* ignorar errores de parseo */ }
+        }
+      });
+}
 
 // ========================================================
 // ADD ITEM MODAL
@@ -470,10 +459,10 @@ const toastMsg = document.getElementById("dashboard-toast-msg");
 function generateCode() {
   const year = new Date().getFullYear();
   const existing = INVENTARIO_DEMO
-    .map(i => i.codigo)
-    .filter(c => c.startsWith(`INV-${year}-`))
-    .map(c => parseInt(c.split("-")[2], 10))
-    .filter(n => !isNaN(n));
+      .map(i => i.codigo)
+      .filter(c => c.startsWith(`INV-${year}-`))
+      .map(c => parseInt(c.split("-")[2], 10))
+      .filter(n => !isNaN(n));
   const next = existing.length > 0 ? Math.max(...existing) + 1 : 1;
   return `INV-${year}-${String(next).padStart(3, "0")}`;
 }
@@ -540,6 +529,7 @@ formAddItem.addEventListener("submit", (e) => {
 
   const newItem = {
     codigo: newCodigo.value,
+    mongo_id: null,
     nombre,
     imagen: "assets/thumbnails/placeholder.svg",
     resumen,
@@ -555,5 +545,5 @@ formAddItem.addEventListener("submit", (e) => {
   showToast(`"${nombre}" agregado al inventario.`);
 });
 
-renderTable(true);
-
+// ── Arranque: cargar datos reales desde la API ──
+cargarInventario();

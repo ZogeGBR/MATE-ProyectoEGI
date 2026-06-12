@@ -3,7 +3,9 @@
  * Control de Inventario Interno | ITU UNCUYO
  * -----------------------------------------------
  * Maneja:
- *   • Carga del producto desde query param (?codigo=INV-2024-001)
+ *   • Carga del producto desde query param (?mongo_id=... o ?codigo=...)
+ *   • Datos estructurales desde localStorage (MySQL vía dashboard)
+ *   • Datos de hardware (specs) desde MongoDB vía /api/equipos/:mongo_id
  *   • Renderizado de specs editables inline
  *   • Toggle edición de características técnicas
  *   • Control de stock con meter visual en tiempo real
@@ -13,177 +15,10 @@
 ;(function () {
   "use strict";
 
-  // ── Datos de demostración (mismos que dashboard.js) ──
-  const INVENTARIO_DEMO = [
-    {
-      codigo: "INV-2024-001",
-      nombre: "Multímetro digital Fluke 117",
-      imagen: "assets/thumbnails/multimetro.svg",
-      resumen:
-        "Medición AC/DC hasta 600 V · True RMS · Portátil · Lab. Electricidad",
-      categoria: "instrumentacion",
-      fisicas: "portatil",
-      stock: { actual: 4, minimo: 2, estado: "disponible" },
-      ubicacion: "Lab. Electricidad",
-      specs: {
-        Marca: "Fluke",
-        Modelo: "117",
-        "Rango de tensión": "0.1 mV – 600 V",
-        "Tipo de medición": "True RMS",
-        "Resistencia máx.": "40 MΩ",
-        "Capacitancia máx.": "100 μF",
-        Alimentación: "Batería 9V",
-        "Peso aprox.": "550 g",
-      },
-    },
-    {
-      codigo: "INV-2024-014",
-      nombre: "Osciloscopio 4 canales 100 MHz",
-      imagen: "assets/thumbnails/osciloscopio.svg",
-      resumen:
-        "4 canales · 100 MHz · De mesa · Lab. Electrónica — en préstamo activo",
-      categoria: "instrumentacion",
-      fisicas: "mesa",
-      stock: { actual: 2, minimo: 2, estado: "revision" },
-      ubicacion: "Lab. Electrónica",
-      specs: {
-        Marca: "Rigol",
-        Modelo: "DS1104Z",
-        Canales: "4",
-        "Ancho de banda": "100 MHz",
-        "Tasa de muestreo": "1 GSa/s",
-        "Profundidad de memoria": "12 Mpts",
-        Pantalla: "7\" TFT color",
-        Alimentación: "220V AC",
-      },
-    },
-    {
-      codigo: "INV-2023-089",
-      nombre: "Notebook Dell Latitude 5540",
-      imagen: "assets/thumbnails/notebook.svg",
-      resumen:
-        "Intel i7 · 16 GB RAM · 512 GB SSD · Portátil · Sala de cómputo 3",
-      categoria: "informatica",
-      fisicas: "portatil",
-      stock: { actual: 18, minimo: 5, estado: "disponible" },
-      ubicacion: "Sala de cómputo 3",
-      specs: {
-        Marca: "Dell",
-        Modelo: "Latitude 5540",
-        Procesador: "Intel Core i7-1365U",
-        "Memoria RAM": "16 GB DDR5",
-        Almacenamiento: "512 GB NVMe SSD",
-        Pantalla: "15.6\" FHD IPS",
-        "Sistema operativo": "Windows 11 Pro",
-        Conectividad: "Wi-Fi 6E, Bluetooth 5.3",
-      },
-    },
-    {
-      codigo: "INV-2022-201",
-      nombre: "Escritorio regulable 140×70 cm",
-      imagen: "assets/thumbnails/escritorio.svg",
-      resumen:
-        "Superficie 140×70 cm · Altura regulable · Voluminoso · Depósito central",
-      categoria: "mobiliario",
-      fisicas: "voluminoso",
-      stock: { actual: 1, minimo: 3, estado: "revision" },
-      ubicacion: "Depósito central",
-      specs: {
-        Fabricante: "Genérico nacional",
-        Dimensiones: "140 × 70 × 72-120 cm",
-        Material: "MDF laminado + acero",
-        "Altura regulable": "72 – 120 cm",
-        "Capacidad de carga": "80 kg",
-        Color: "Gris claro",
-        "Pasacables integrado": "Sí",
-        "Año de adquisición": "2022",
-      },
-    },
-    {
-      codigo: "INV-2021-045",
-      nombre: "Proyector Epson EB-L200F",
-      imagen: "assets/thumbnails/proyector.svg",
-      resumen:
-        "Láser 3.600 lm · HDMI/Wi-Fi · Instalación fija · Aula magna",
-      categoria: "audiovisual",
-      fisicas: "fijo",
-      stock: { actual: 1, minimo: 1, estado: "disponible" },
-      ubicacion: "Aula magna",
-      specs: {
-        Marca: "Epson",
-        Modelo: "EB-L200F",
-        Tecnología: "3LCD Láser",
-        Brillo: "4.500 lúmenes",
-        Resolución: "Full HD (1920×1080)",
-        "Relación de contraste": "2.500.000:1",
-        Conectividad: "HDMI, USB, Wi-Fi, Miracast",
-        "Vida útil fuente": "20.000 horas",
-      },
-    },
-    {
-      codigo: "INV-2020-112",
-      nombre: "Taladro percutor industrial",
-      imagen: "assets/thumbnails/taladro.svg",
-      resumen:
-        "Percutor 800 W · Mandril 13 mm · Portátil · Taller mantenimiento",
-      categoria: "herramientas",
-      fisicas: "portatil",
-      stock: { actual: 3, minimo: 2, estado: "disponible" },
-      ubicacion: "Taller mantenimiento",
-      specs: {
-        Marca: "Bosch",
-        Modelo: "GSB 20-2RE",
-        Potencia: "800 W",
-        Mandril: "13 mm (portabrocas rápido)",
-        Velocidad: "0 – 3.000 RPM",
-        "Impactos por min.": "51.000",
-        Peso: "2.6 kg",
-        Cable: "2.5 m",
-      },
-    },
-    {
-      codigo: "INV-2019-078",
-      nombre: "Servidor rack 2U HP ProLiant",
-      imagen: "assets/thumbnails/servidor.svg",
-      resumen:
-        "Rack 2U · 32 GB RAM · Sin unidades en depósito · Sala de servidores",
-      categoria: "informatica",
-      fisicas: "rack",
-      stock: { actual: 0, minimo: 1, estado: "agotado" },
-      ubicacion: "Sala de servidores",
-      specs: {
-        Marca: "HP",
-        Modelo: "ProLiant DL380 Gen10",
-        Procesador: "2× Intel Xeon Silver 4210",
-        "Memoria RAM": "32 GB DDR4 ECC",
-        Almacenamiento: "4× 600 GB SAS 10K",
-        "Factor de forma": "2U Rack",
-        Fuente: "2× 500W redundante",
-        Controladora: "HPE Smart Array P408i-a",
-      },
-    },
-    {
-      codigo: "INV-2024-033",
-      nombre: "Silla ergonómica oficina",
-      imagen: "assets/thumbnails/silla.svg",
-      resumen:
-        "Respaldo regulable · Tapizado gris · Voluminoso · Secretaría académica",
-      categoria: "mobiliario",
-      fisicas: "voluminoso",
-      stock: { actual: 0, minimo: 4, estado: "agotado" },
-      ubicacion: "Secretaría académica",
-      specs: {
-        Fabricante: "Citiz",
-        Tipo: "Ergonómica con apoyo lumbar",
-        Material: "Malla transpirable + tapizado",
-        "Regulación de altura": "Sí (neumática)",
-        Apoyabrazos: "Regulable 3D",
-        "Capacidad de carga": "120 kg",
-        Color: "Gris oscuro",
-        Ruedas: "5 ruedas de nylon",
-      },
-    },
-  ];
+  // ── INVENTARIO_DEMO se rellena desde localStorage (cargado por dashboard.js) ──
+  // Si el usuario llega directamente a detalle.html sin pasar por el dashboard,
+  // el array estará vacío y el fallback de la API se encargará.
+  const INVENTARIO_DEMO = [];
 
   const STOCK_LABELS = {
     disponible: "Disponible",
@@ -252,16 +87,128 @@
   function init() {
     loadInventory();
 
-    const params = new URLSearchParams(window.location.search);
-    const codigo = params.get("codigo") || "INV-2024-001";
+    const params  = new URLSearchParams(window.location.search);
+    const mongoId = params.get("mongo_id");
+    const codigo  = params.get("codigo");
 
-    currentProduct = INVENTARIO_DEMO.find((p) => p.codigo === codigo);
-    if (!currentProduct) {
-      currentProduct = INVENTARIO_DEMO[0];
+    if (mongoId) {
+      // Ruta principal: cargar desde MongoDB vía API
+      cargarDesdeAPI(mongoId, codigo);
+    } else if (codigo) {
+      // Fallback: buscar en localStorage por numero_serie (código)
+      currentProduct = INVENTARIO_DEMO.find((p) => p.codigo === codigo);
+      if (currentProduct) {
+        render(currentProduct);
+        bindEvents();
+      } else {
+        mostrarErrorCarga("Equipo no encontrado. Volvé al inventario.");
+      }
+    } else {
+      mostrarErrorCarga("No se especificó ningún equipo.");
+    }
+  }
+
+  // ── Carga desde MongoDB vía /api/equipos/:mongo_id ──
+  function cargarDesdeAPI(mongoId, codigoFallback) {
+    // Mostrar estado de carga en campos clave
+    if (detailName) detailName.textContent = "Cargando…";
+    if (detailCode) detailCode.textContent = codigoFallback || "…";
+
+    fetch("/api/equipos/" + encodeURIComponent(mongoId))
+        .then(function (res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json();
+        })
+        .then(function (docMongo) {
+          // Buscar los datos relacionales (ubicación, responsable, etc.)
+          // desde localStorage (ya cargado por dashboard.js)
+          const baseLocal = INVENTARIO_DEMO.find(function (p) {
+            return p.mongo_id === mongoId || p.codigo === codigoFallback;
+          });
+
+          // Combinar datos: MySQL (base) + MongoDB (specs de hardware)
+          currentProduct = construirProducto(docMongo, baseLocal, codigoFallback);
+
+          render(currentProduct);
+          bindEvents();
+        })
+        .catch(function (err) {
+          console.error("Error cargando detalle desde MongoDB:", err);
+
+          // Fallback: intentar renderizar con los datos locales solamente
+          const baseLocal = INVENTARIO_DEMO.find(function (p) {
+            return p.mongo_id === mongoId || p.codigo === codigoFallback;
+          });
+
+          if (baseLocal) {
+            currentProduct = baseLocal;
+            if (!currentProduct.specs) {
+              currentProduct.specs = { "Info": "Datos de hardware no disponibles (sin conexión al servidor)" };
+            }
+            render(currentProduct);
+            bindEvents();
+            showToast("Mostrando datos parciales (sin conexión a MongoDB).");
+          } else {
+            mostrarErrorCarga("No se pudo cargar el equipo. Verificá la conexión.");
+          }
+        });
+  }
+
+  /**
+   * Combina un documento de MongoDB con los datos relacionales de MySQL
+   * (que vienen del localStorage poblado por dashboard.js) en un objeto
+   * con el formato que espera render().
+   *
+   * El documento MongoDB puede tener cualquier estructura, por eso usamos
+   * un mapeo flexible: todo lo que no sea _id se muestra como spec.
+   */
+  function construirProducto(docMongo, baseLocal, codigoFallback) {
+    // Campos reservados de MongoDB que NO queremos mostrar como specs
+    const camposInternos = new Set(["_id", "numero_serie", "id_equipo"]);
+
+    // Extraer specs: todo campo de MongoDB que no sea interno
+    const specs = {};
+    for (const clave in docMongo) {
+      if (!camposInternos.has(clave)) {
+        // Formatear el nombre de clave: snake_case → Título legible
+        const label = clave
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        const valor = docMongo[clave];
+        // Mostrar objetos anidados como JSON compacto
+        specs[label] = (typeof valor === "object" && valor !== null)
+            ? JSON.stringify(valor)
+            : String(valor);
+      }
     }
 
-    render(currentProduct);
-    bindEvents();
+    // Si no hay ningún spec, poner un placeholder
+    if (Object.keys(specs).length === 0) {
+      specs["Info"] = "Sin especificaciones técnicas cargadas";
+    }
+
+    return {
+      // Identificadores
+      codigo:    docMongo.numero_serie || codigoFallback || docMongo._id,
+      mongo_id:  docMongo._id,
+
+      // Presentación (desde MySQL/localStorage si está disponible)
+      nombre:    baseLocal ? baseLocal.nombre    : (docMongo.numero_serie || "Equipo"),
+      imagen:    baseLocal ? baseLocal.imagen    : "assets/thumbnails/placeholder.svg",
+      resumen:   baseLocal ? baseLocal.resumen   : "Datos cargados desde MongoDB",
+      categoria: baseLocal ? baseLocal.categoria : "informatica",
+      fisicas:   baseLocal ? baseLocal.fisicas   : "mesa",
+      ubicacion: baseLocal ? baseLocal.ubicacion : "—",
+
+      // Stock (desde localStorage)
+      stock: baseLocal ? baseLocal.stock : { actual: 1, minimo: 1, estado: "disponible" },
+
+      // Specs técnicas reales (desde MongoDB)
+      specs: specs,
+
+      // Notas (desde localStorage si existen)
+      notes: baseLocal ? (baseLocal.notes || []) : [],
+    };
   }
 
   // ── Render full product ──
@@ -287,7 +234,7 @@
     detailName.textContent = product.nombre;
     detailDesc.textContent = product.resumen;
 
-    // Specs
+    // Specs (datos reales de MongoDB)
     renderSpecs(product.specs);
 
     // Stock
@@ -400,11 +347,8 @@
     saveOriginalStock();
     updateMeter();
 
-    // Persist to localStorage
+    // Persistir en localStorage
     saveInventory();
-
-    // TODO: Enviar datos al backend
-    // fetch("/api/productos/" + currentProduct.codigo, { method: "PUT", ... })
 
     showToast("Cambios guardados correctamente.");
   }
@@ -528,7 +472,21 @@
   }
 
   function saveInventory() {
+    // Actualizar el item correspondiente en el array local
+    const idx = INVENTARIO_DEMO.findIndex(function (p) {
+      return p.mongo_id === currentProduct.mongo_id || p.codigo === currentProduct.codigo;
+    });
+    if (idx !== -1) {
+      INVENTARIO_DEMO[idx] = currentProduct;
+    }
     localStorage.setItem("itu_inventario", JSON.stringify(INVENTARIO_DEMO));
+  }
+
+  // ── Error de carga ──
+  function mostrarErrorCarga(mensaje) {
+    if (detailName) detailName.textContent = mensaje;
+    if (detailCode) detailCode.textContent = "—";
+    if (detailDesc) detailDesc.textContent = "Volvé al inventario y seleccioná un equipo.";
   }
 
   // ── Toast ──
