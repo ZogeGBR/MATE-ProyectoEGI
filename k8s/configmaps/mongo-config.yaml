@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-config
+  namespace: inventario-egi
+data:
+  MONGO_DATABASE: "inventario_itu"

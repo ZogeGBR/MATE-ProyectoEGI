@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external-to-app
+  namespace: inventario-egi
+spec:
+  podSelector:
+    matchLabels:
+      app: inventario-app
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 5000

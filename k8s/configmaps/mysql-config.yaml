@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: inventario-egi
+data:
+  MYSQL_DATABASE: "inventario_itu"
