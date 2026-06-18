@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: inventario-egi
+data:
+  MYSQL_HOST: "mysql-service"
+  MYSQL_PORT: "3306"
+  MYSQL_DB: "inventario_itu"
+  MYSQL_USER: "app_user"
+  MONGO_HOST: "mongo-service"
+  MONGO_PORT: "27017"
+  MONGO_DB: "inventario_hardware"
+  LDAP_HOST: "ldap://ldap-service"
+  LDAP_BASE_DN: "dc=itu,dc=edu,dc=ar"
