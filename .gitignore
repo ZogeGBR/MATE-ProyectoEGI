@@ -3,5 +3,6 @@ frontend/venv/
 __pycache__/
 *.pyc
 .idea/
-.git/
-*.md
+*.egg-info/
+dist/
+build/

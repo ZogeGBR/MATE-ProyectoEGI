@@ -3,6 +3,26 @@
  * Integración real con MySQL vía /api/equipos
  */
 
+// ── Guard de autenticación JWT ──
+const JWT = localStorage.getItem("itu_jwt");
+if (!JWT) {
+  window.location.href = "login.html";
+}
+
+function authHeaders() {
+  return { "Authorization": "Bearer " + JWT };
+}
+
+function handleAuthError(res) {
+  if (res.status === 401) {
+    localStorage.removeItem("itu_jwt");
+    localStorage.removeItem("itu_session_user");
+    window.location.href = "login.html";
+    throw new Error("No autorizado");
+  }
+  return res;
+}
+
 const PAGE_SIZE = 5;
 
 // INVENTARIO_DEMO se mantiene como array mutable que se rellena desde la API.

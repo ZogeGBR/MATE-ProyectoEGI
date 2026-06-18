@@ -19,6 +19,18 @@
   // Si el usuario llega directamente a detalle.html sin pasar por el dashboard,
   // el array estará vacío y el fallback de la API se encargará.
   const INVENTARIO_DEMO = [];
+  // ── Guard de autenticación JWT ──
+  const JWT = localStorage.getItem("itu_jwt");
+  if (!JWT) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  function authHeaders() {
+    return { "Authorization": "Bearer " + JWT };
+  }
+
+
 
   const STOCK_LABELS = {
     disponible: "Disponible",

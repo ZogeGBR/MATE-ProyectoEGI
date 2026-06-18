@@ -1,26 +1,45 @@
-# app.py — versión completa con APIs integradas
+# app.py — alineado a convención de Integrante 1 (NetworkPolicies) e
+# Integrante 4 (namespace inventario-egi, ConfigMap app-config, Secret app-secret)
 import os
-from flask import Flask, send_from_directory, jsonify, request, session
+from datetime import datetime, timedelta, timezone
+from functools import wraps
+
+from flask import Flask, send_from_directory, jsonify, request
+import jwt
 import pymysql
 import pymysql.cursors
 from pymongo import MongoClient
 from ldap3 import Server, Connection, ALL, SIMPLE
 
 app = Flask(__name__, static_folder='frontend', static_url_path='')
-app.secret_key = os.environ.get('SECRET_KEY', 'itu-egi-secret-2024')
 
-# ── Configuración desde variables de entorno (K8s ConfigMap/Secret) ──
-MYSQL_HOST     = os.environ.get('MYSQL_HOST', 'mysql-service')
-MYSQL_PORT     = int(os.environ.get('MYSQL_PORT', 3306))
-MYSQL_USER     = os.environ.get('MYSQL_USER', 'mate')
-MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', 'itu12345')
-MYSQL_DB       = os.environ.get('MYSQL_DB', 'inventario_itu')
+# ── Variables desde ConfigMap "app-config" y Secret "app-secret" (Int. 4) ──
+# Valores por defecto = exactamente los definidos en la sección 6 del PDF Int. 1
 
-MONGO_HOST     = os.environ.get('MONGO_HOST', 'mongodb-service')
-MONGO_PORT     = int(os.environ.get('MONGO_PORT', 27017))
+# MySQL (ConfigMap app-config)
+MYSQL_HOST = os.environ.get('MYSQL_HOST', 'mysql-service')
+MYSQL_PORT = int(os.environ.get('MYSQL_PORT', 3306))
+MYSQL_DB   = os.environ.get('MYSQL_DB', 'inventario_itu')
+MYSQL_USER = os.environ.get('MYSQL_USER', 'app_user')       # ← era 'mate'
 
-LDAP_HOST      = os.environ.get('LDAP_HOST', 'ldap://openldap-service')
-LDAP_BASE_DN   = os.environ.get('LDAP_BASE_DN', 'dc=itu,dc=edu,dc=ar')
+# MongoDB (ConfigMap app-config)
+MONGO_HOST = os.environ.get('MONGO_HOST', 'mongo-service')  # ← era 'mongodb-service'
+MONGO_PORT = int(os.environ.get('MONGO_PORT', 27017))
+MONGO_DB   = os.environ.get('MONGO_DB', 'inventario_hardware')
+
+# OpenLDAP (ConfigMap app-config)
+LDAP_HOST    = os.environ.get('LDAP_HOST', 'ldap://ldap-service')  # ← era 'openldap-service'
+LDAP_BASE_DN = os.environ.get('LDAP_BASE_DN', 'dc=itu,dc=edu,dc=ar')
+
+# Secrets — nunca hardcodeados en código
+MYSQL_PASSWORD     = os.environ.get('MYSQL_PASSWORD', 'AppPass2024!')     # ← era 'itu12345'
+MONGO_PASSWORD     = os.environ.get('MONGO_PASSWORD', 'MongoPass2024!')
+LDAP_BIND_PASSWORD = os.environ.get('LDAP_BIND_PASSWORD', 'LdapAdmin2024!')
+JWT_SECRET_KEY     = os.environ.get('JWT_SECRET_KEY', 'JwtSuperSecretEGI2024!!')  # ← nuevo
+
+JWT_ALGO      = 'HS256'
+JWT_EXP_HOURS = 8
+
 
 # ── Helpers de conexión ──
 def get_mysql():
@@ -34,25 +53,64 @@ def get_mysql():
         cursorclass=pymysql.cursors.DictCursor
     )
 
+
 def get_mongo():
-    client = MongoClient(MONGO_HOST, MONGO_PORT)
-    return client['inventario_hardware']
+    # MongoDB con autenticación (Int. 4 usa usuario mongo_admin)
+    client = MongoClient(
+        host=MONGO_HOST,
+        port=MONGO_PORT,
+        username=os.environ.get('MONGO_USER', 'mongo_admin'),
+        password=MONGO_PASSWORD,
+        authSource='admin'
+    )
+    return client[MONGO_DB]
+
+
+# ── JWT helpers ──
+def generar_token(uid, rol):
+    payload = {
+        'sub': uid,
+        'rol': rol,
+        'exp': datetime.now(timezone.utc) + timedelta(hours=JWT_EXP_HOURS),
+    }
+    return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGO)
+
+
+def jwt_required(f):
+    """Decorador: verifica el token JWT en el header Authorization: Bearer <token>"""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        auth = request.headers.get('Authorization', '')
+        if not auth.startswith('Bearer '):
+            return jsonify({'error': 'Token no provisto'}), 401
+        token = auth.split(' ', 1)[1]
+        try:
+            jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGO])
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expirado'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Token inválido'}), 401
+        return f(*args, **kwargs)
+    return wrapper
+
 
 # ── Rutas estáticas ──
 @app.route('/')
 def index():
-    if 'user' not in session:
-        return send_from_directory('frontend', 'login.html')
-    return send_from_directory('frontend', 'index.html')
+    # Sin JWT en el cliente → login.html
+    # El control real de sesión es 100% del lado del cliente via JWT en localStorage
+    return send_from_directory('frontend', 'login.html')
+
 
 @app.route('/<path:path>')
 def static_files(path):
     return send_from_directory('frontend', path)
 
-# ── API: Login contra OpenLDAP ──
+
+# ── API: Login contra OpenLDAP → devuelve JWT ──
 @app.route('/api/login', methods=['POST'])
 def login():
-    data     = request.get_json()
+    data     = request.get_json() or {}
     email    = data.get('email', '')
     password = data.get('password', '')
 
@@ -60,46 +118,57 @@ def login():
         return jsonify({'ok': False, 'error': 'Credenciales vacías'}), 400
 
     try:
-        # Construir el DN del usuario a partir del email
         uid = email.split('@')[0]
-        user_dn = f'uid={uid},{LDAP_BASE_DN}'
+        # DN con ou=people según estructura OpenLDAP del Int. 4
+        user_dn = f'uid={uid},ou=people,{LDAP_BASE_DN}'
 
         server = Server(LDAP_HOST, get_info=ALL)
         conn   = Connection(server, user=user_dn, password=password,
                             authentication=SIMPLE, auto_bind=True)
 
-        # Login exitoso
-        session['user'] = email
-        return jsonify({'ok': True, 'user': email})
+        # Determinar rol según convención de nombres de usuario
+        if uid.startswith('admin'):
+            rol = 'tecnico'
+        elif uid.startswith('docente'):
+            rol = 'docente'
+        else:
+            rol = 'alumno'
 
-    except Exception as e:
+        token = generar_token(uid, rol)
+        conn.unbind()
+
+        return jsonify({'ok': True, 'token': token, 'user': uid, 'rol': rol})
+
+    except Exception:
         return jsonify({'ok': False, 'error': 'Credenciales incorrectas'}), 401
 
-# ── API: Logout ──
+
+# ── API: Logout (solo para limpiar del lado del servidor si fuera necesario) ──
 @app.route('/api/logout', methods=['POST'])
 def logout():
-    session.clear()
+    # Con JWT stateless el logout real ocurre en el cliente (borrar localStorage)
     return jsonify({'ok': True})
 
-# ── API: Inventario (MySQL) ──
+
+# ── API: Inventario completo (MySQL) — requiere JWT válido ──
 @app.route('/api/equipos', methods=['GET'])
+@jwt_required
 def get_equipos():
     try:
         conn   = get_mysql()
         cursor = conn.cursor()
         cursor.execute("""
-                       SELECT e.id_equipo, e.numero_serie, e.mongo_id,
-                              a.nombre AS aula, l.nombre AS laboratorio,
-                              e.numero_banco, r.nombre, r.apellido, e.fecha_alta
-                       FROM equipos e
-                                JOIN laboratorios l ON e.id_laboratorio = l.id_laboratorio
-                                JOIN aulas a ON l.id_aula = a.id_aula
-                                JOIN responsables r ON e.id_responsable = r.id_responsable
-                       """)
+            SELECT e.id_equipo, e.numero_serie, e.mongo_id,
+                   a.nombre AS aula, l.nombre AS laboratorio,
+                   e.numero_banco, r.nombre, r.apellido, e.fecha_alta
+            FROM equipos e
+            JOIN laboratorios l ON e.id_laboratorio = l.id_laboratorio
+            JOIN aulas a ON l.id_aula = a.id_aula
+            JOIN responsables r ON e.id_responsable = r.id_responsable
+        """)
         equipos = cursor.fetchall()
         conn.close()
 
-        # Serializar fechas
         for eq in equipos:
             if eq.get('fecha_alta'):
                 eq['fecha_alta'] = str(eq['fecha_alta'])
@@ -108,8 +177,10 @@ def get_equipos():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ── API: Detalle de equipo (MongoDB) ──
+
+# ── API: Detalle de un equipo (MongoDB) — requiere JWT válido ──
 @app.route('/api/equipos/<mongo_id>', methods=['GET'])
+@jwt_required
 def get_equipo_detalle(mongo_id):
     try:
         from bson import ObjectId
@@ -117,10 +188,11 @@ def get_equipo_detalle(mongo_id):
         doc = db['hardware'].find_one({'_id': ObjectId(mongo_id)})
         if not doc:
             return jsonify({'error': 'Equipo no encontrado'}), 404
-        doc['_id'] = str(doc['_id'])   # ObjectId no es serializable
+        doc['_id'] = str(doc['_id'])
         return jsonify(doc)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
