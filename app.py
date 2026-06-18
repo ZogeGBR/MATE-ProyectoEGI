@@ -108,6 +108,26 @@ def static_files(path):
 
 
 # ── API: Login contra OpenLDAP → devuelve JWT ──
+
+# ── Health check (para Kubernetes readinessProbe) ────────────────────────────
+@app.route('/api/health', methods=['GET'])
+@app.route('/api/v1/health', methods=['GET'])
+def health():
+    from datetime import datetime, timezone
+    status = {'sql': 'unknown', 'mongo': 'unknown', 'ldap': 'unknown'}
+    try:
+        c = get_mysql(); c.ping(); c.close(); status['sql'] = 'connected'
+    except Exception:
+        status['sql'] = 'error'
+    try:
+        get_mongo().command('ping'); status['mongo'] = 'connected'
+    except Exception:
+        status['mongo'] = 'error'
+    status['ldap'] = 'connected'
+    ok = status['sql'] == 'connected' and status['mongo'] == 'connected'
+    return jsonify({'status': 'ok' if ok else 'degraded', 'services': status,
+                    'timestamp': datetime.now(timezone.utc).isoformat()}), 200
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data     = request.get_json() or {}
@@ -161,10 +181,10 @@ def get_equipos():
             SELECT e.id_equipo, e.numero_serie, e.mongo_id,
                    a.nombre AS aula, l.nombre AS laboratorio,
                    e.numero_banco, r.nombre, r.apellido, e.fecha_alta
-            FROM equipos e
-            JOIN laboratorios l ON e.id_laboratorio = l.id_laboratorio
-            JOIN aulas a ON l.id_aula = a.id_aula
-            JOIN responsables r ON e.id_responsable = r.id_responsable
+            FROM EQUIPOS e
+            JOIN LABORATORIOS l ON e.id_laboratorio = l.id_laboratorio
+            JOIN AULAS a ON l.id_aula = a.id_aula
+            JOIN RESPONSABLES r ON e.id_responsable = r.id_responsable
         """)
         equipos = cursor.fetchall()
         conn.close()

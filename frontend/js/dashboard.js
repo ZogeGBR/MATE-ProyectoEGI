@@ -425,7 +425,7 @@ function cargarInventario() {
   // Mostrar estado de carga
   resultCount.textContent = "Cargando inventario…";
 
-  fetch("/api/equipos")
+  fetch("/api/equipos", { headers: authHeaders() })
       .then(function (res) {
         if (!res.ok) throw new Error("Error HTTP " + res.status);
         return res.json();
