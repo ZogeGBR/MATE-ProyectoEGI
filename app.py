@@ -27,7 +27,7 @@ MYSQL_USER = os.environ.get('MYSQL_USER', 'app_user')       # ← era 'mate'
 # MongoDB (ConfigMap app-config)
 MONGO_HOST = os.environ.get('MONGO_HOST', 'mongo-service')  # ← era 'mongodb-service'
 MONGO_PORT = int(os.environ.get('MONGO_PORT', 27017))
-MONGO_DB   = os.environ.get('MONGO_DB', 'inventario_hardware')
+MONGO_DB   = os.environ.get('MONGO_DATABASE', 'inventario_itu')
 
 # OpenLDAP (ConfigMap app-config)
 LDAP_HOST    = os.environ.get('LDAP_HOST', 'ldap://ldap-service')  # ← era 'openldap-service'
