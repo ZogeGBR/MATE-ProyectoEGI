@@ -126,7 +126,7 @@
     if (detailName) detailName.textContent = "Cargando…";
     if (detailCode) detailCode.textContent = codigoFallback || "…";
 
-    fetch("/api/equipos/" + encodeURIComponent(mongoId))
+    fetch("/api/equipos/" + encodeURIComponent(mongoId), { headers: authHeaders() })
         .then(function (res) {
           if (!res.ok) throw new Error("HTTP " + res.status);
           return res.json();

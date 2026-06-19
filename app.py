@@ -4,7 +4,8 @@ import os
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 
-from flask import Flask, send_from_directory, jsonify, request
+from flask import Flask, send_from_directory, jsonify, request, Response
+import json as _json
 import jwt
 import pymysql
 import pymysql.cursors
@@ -12,6 +13,7 @@ from pymongo import MongoClient
 from ldap3 import Server, Connection, ALL, SIMPLE
 
 app = Flask(__name__, static_folder='frontend', static_url_path='')
+app.config['JSON_AS_ASCII'] = False
 
 # ── Variables desde ConfigMap "app-config" y Secret "app-secret" (Int. 4) ──
 # Valores por defecto = exactamente los definidos en la sección 6 del PDF Int. 1
@@ -50,6 +52,8 @@ def get_mysql():
         password=MYSQL_PASSWORD,
         db=MYSQL_DB,
         charset='utf8mb4',
+        use_unicode=True,
+        init_command="SET NAMES utf8mb4",
         cursorclass=pymysql.cursors.DictCursor
     )
 
@@ -193,7 +197,7 @@ def get_equipos():
             if eq.get('fecha_alta'):
                 eq['fecha_alta'] = str(eq['fecha_alta'])
 
-        return jsonify(equipos)
+        return Response(_json.dumps(equipos, ensure_ascii=False), mimetype='application/json; charset=utf-8')
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
