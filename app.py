@@ -4,7 +4,8 @@ import os
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 
-from flask import Flask, send_from_directory, jsonify, request
+from flask import Flask, send_from_directory, jsonify, request, Response
+import json as _json
 import jwt
 import pymysql
 import pymysql.cursors
@@ -12,6 +13,7 @@ from pymongo import MongoClient
 from ldap3 import Server, Connection, ALL, SIMPLE
 
 app = Flask(__name__, static_folder='frontend', static_url_path='')
+app.config['JSON_AS_ASCII'] = False
 
 # ── Variables desde ConfigMap "app-config" y Secret "app-secret" (Int. 4) ──
 # Valores por defecto = exactamente los definidos en la sección 6 del PDF Int. 1
@@ -25,7 +27,7 @@ MYSQL_USER = os.environ.get('MYSQL_USER', 'app_user')       # ← era 'mate'
 # MongoDB (ConfigMap app-config)
 MONGO_HOST = os.environ.get('MONGO_HOST', 'mongo-service')  # ← era 'mongodb-service'
 MONGO_PORT = int(os.environ.get('MONGO_PORT', 27017))
-MONGO_DB   = os.environ.get('MONGO_DB', 'inventario_hardware')
+MONGO_DB   = os.environ.get('MONGO_DATABASE', 'inventario_itu')
 
 # OpenLDAP (ConfigMap app-config)
 LDAP_HOST    = os.environ.get('LDAP_HOST', 'ldap://ldap-service')  # ← era 'openldap-service'
@@ -50,6 +52,8 @@ def get_mysql():
         password=MYSQL_PASSWORD,
         db=MYSQL_DB,
         charset='utf8mb4',
+        use_unicode=True,
+        init_command="SET NAMES utf8mb4",
         cursorclass=pymysql.cursors.DictCursor
     )
 
@@ -108,6 +112,26 @@ def static_files(path):
 
 
 # ── API: Login contra OpenLDAP → devuelve JWT ──
+
+# ── Health check (para Kubernetes readinessProbe) ────────────────────────────
+@app.route('/api/health', methods=['GET'])
+@app.route('/api/v1/health', methods=['GET'])
+def health():
+    from datetime import datetime, timezone
+    status = {'sql': 'unknown', 'mongo': 'unknown', 'ldap': 'unknown'}
+    try:
+        c = get_mysql(); c.ping(); c.close(); status['sql'] = 'connected'
+    except Exception:
+        status['sql'] = 'error'
+    try:
+        get_mongo().command('ping'); status['mongo'] = 'connected'
+    except Exception:
+        status['mongo'] = 'error'
+    status['ldap'] = 'connected'
+    ok = status['sql'] == 'connected' and status['mongo'] == 'connected'
+    return jsonify({'status': 'ok' if ok else 'degraded', 'services': status,
+                    'timestamp': datetime.now(timezone.utc).isoformat()}), 200
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data     = request.get_json() or {}
@@ -161,10 +185,10 @@ def get_equipos():
             SELECT e.id_equipo, e.numero_serie, e.mongo_id,
                    a.nombre AS aula, l.nombre AS laboratorio,
                    e.numero_banco, r.nombre, r.apellido, e.fecha_alta
-            FROM equipos e
-            JOIN laboratorios l ON e.id_laboratorio = l.id_laboratorio
-            JOIN aulas a ON l.id_aula = a.id_aula
-            JOIN responsables r ON e.id_responsable = r.id_responsable
+            FROM EQUIPOS e
+            JOIN LABORATORIOS l ON e.id_laboratorio = l.id_laboratorio
+            JOIN AULAS a ON l.id_aula = a.id_aula
+            JOIN RESPONSABLES r ON e.id_responsable = r.id_responsable
         """)
         equipos = cursor.fetchall()
         conn.close()
@@ -173,7 +197,7 @@ def get_equipos():
             if eq.get('fecha_alta'):
                 eq['fecha_alta'] = str(eq['fecha_alta'])
 
-        return jsonify(equipos)
+        return Response(_json.dumps(equipos, ensure_ascii=False), mimetype='application/json; charset=utf-8')
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

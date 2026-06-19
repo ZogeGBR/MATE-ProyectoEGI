@@ -44,6 +44,11 @@ spec:
                   key: LDAP_ADMIN_PASSWORD
             - name: LDAP_TLS
               value: "false"
+          volumeMounts:
+            - name: ldap-data
+              mountPath: /var/lib/ldap
+            - name: ldap-config
+              mountPath: /etc/ldap/slapd.d
           resources:
             requests:
               memory: "128Mi"
@@ -51,3 +56,9 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "200m"
+      volumes:
+        - name: ldap-data
+          persistentVolumeClaim:
+            claimName: ldap-pvc
+        - name: ldap-config
+          emptyDir: {}
