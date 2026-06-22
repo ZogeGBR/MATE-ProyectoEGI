@@ -143,11 +143,12 @@ def login():
 
     try:
         uid = email.split('@')[0]
-        # DN con ou=people según estructura OpenLDAP del Int. 4
-        user_dn = f'uid={uid},ou=people,{LDAP_BASE_DN}'
+        # AD de Windows usa userPrincipalName: usuario@dominio
+        ldap_domain = LDAP_BASE_DN.replace('dc=', '').replace(',', '.')
+        upn = f'{uid}@{ldap_domain}'
 
         server = Server(LDAP_HOST, get_info=ALL)
-        conn   = Connection(server, user=user_dn, password=password,
+        conn   = Connection(server, user=upn, password=password,
                             authentication=SIMPLE, auto_bind=True)
 
         # Determinar rol según convención de nombres de usuario
