@@ -575,6 +575,17 @@
   border-color: var(--itu-azul-claro);
 }
 
+.detail-btn--danger {
+  background: var(--itu-blanco);
+  color: var(--stock-agotado);
+  border: 1px solid var(--stock-agotado-borde);
+}
+
+.detail-btn--danger:hover {
+  background: var(--stock-agotado-bg);
+  border-color: var(--stock-agotado);
+}
+
 /* ---------- Toast notification ---------- */
 .detail-toast {
   position: fixed;

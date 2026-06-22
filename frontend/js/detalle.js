@@ -75,6 +75,7 @@
   const stockMeterMax = document.getElementById("stock-meter-max");
   const btnSave = document.getElementById("btn-save");
   const btnDiscard = document.getElementById("btn-discard");
+  const btnDelete = document.getElementById("btn-delete");
   const toastEl = document.getElementById("detail-toast");
   const toastMsg = document.getElementById("toast-msg");
 
@@ -426,6 +427,35 @@
     showToast("Cambios descartados.");
   }
 
+  function handleDelete() {
+    if (!currentProduct || !currentProduct.mongo_id) {
+      showToast("No se pudo identificar el equipo a eliminar.");
+      return;
+    }
+    if (!confirm(`¿Eliminar "${currentProduct.nombre}" del inventario? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    fetch("/api/equipos/" + encodeURIComponent(currentProduct.mongo_id), {
+      method: "DELETE",
+      headers: authHeaders(),
+    })
+      .then(function (res) {
+        if (!res.ok) return res.json().then(function (e) { throw new Error(e.error || ("Error HTTP " + res.status)); });
+        return res.json();
+      })
+      .then(function () {
+        showToast("Equipo eliminado correctamente.");
+        setTimeout(function () {
+          window.location.href = "index.html";
+        }, 800);
+      })
+      .catch(function (err) {
+        console.error("Error eliminando equipo:", err);
+        showToast("No se pudo eliminar el equipo: " + err.message);
+      });
+  }
+
   // ── Notes rendering and management ──
   const NOTE_BADGE_LABELS = {
     info: "ℹ️ Info",
@@ -564,6 +594,7 @@
     btnEditSpecs.addEventListener("click", toggleEditSpecs);
     btnSave.addEventListener("click", handleSave);
     btnDiscard.addEventListener("click", handleDiscard);
+    btnDelete.addEventListener("click", handleDelete);
     btnAddNote.addEventListener("click", handleAddNote);
 
     // Enter adds note, Shift+Enter inputs newline

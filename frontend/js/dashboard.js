@@ -547,22 +547,36 @@ formAddItem.addEventListener("submit", (e) => {
   if (!fisicas) { showModalError("Seleccioná las características físicas."); return; }
   if (!resumen) { showModalError("Ingresá una descripción o resumen."); return; }
 
-  const newItem = {
-    codigo: newCodigo.value,
-    mongo_id: null,
-    nombre,
-    imagen: "assets/thumbnails/placeholder.svg",
-    resumen,
-    categoria,
-    fisicas,
-    stock: { actual: stockActual, minimo: stockMinimo, estado: stockEstado },
-  };
-
-  INVENTARIO_DEMO.push(newItem);
-  saveInventory();
-  closeModal();
-  renderTable(true);
-  showToast(`"${nombre}" agregado al inventario.`);
+  // Antes: esto solo empujaba a un array en memoria (INVENTARIO_DEMO.push)
+  // y nunca llegaba al backend, por eso el equipo "desaparecía" al volver
+  // al dashboard (cargarInventario() lo pisaba con los datos reales).
+  // Ahora: POST real a /api/equipos, y recarga desde la API al confirmar.
+  fetch("/api/equipos", {
+    method: "POST",
+    headers: Object.assign({ "Content-Type": "application/json" }, authHeaders()),
+    body: JSON.stringify({
+      modelo: nombre,
+      sistema_operativo: "",
+      cpu: {},
+      ram_gb: 0,
+      almacenamiento: {},
+      perifericos: {},
+    }),
+  })
+    .then(handleAuthError)
+    .then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.error || ("Error HTTP " + res.status)); });
+      return res.json();
+    })
+    .then(function () {
+      closeModal();
+      showToast(`"${nombre}" agregado al inventario.`);
+      cargarInventario(); // recarga la tabla con los datos reales (incluye el nuevo)
+    })
+    .catch(function (err) {
+      console.error("Error creando equipo:", err);
+      showModalError("No se pudo guardar el equipo en el servidor: " + err.message);
+    });
 });
 
 // ── Arranque: cargar datos reales desde la API ──

@@ -30,9 +30,8 @@ MONGO_PORT = int(os.environ.get('MONGO_PORT', 27017))
 MONGO_DB   = os.environ.get('MONGO_DATABASE', 'inventario_itu')
 
 # OpenLDAP (ConfigMap app-config)
-LDAP_HOST    = os.environ.get('LDAP_HOST', '172.22.75.83')
-LDAP_PORT    = int(os.environ.get('LDAP_PORT', '389'))
-LDAP_BASE_DN = os.environ.get('LDAP_BASE_DN', 'dc=itu,dc=local')
+LDAP_HOST    = os.environ.get('LDAP_HOST', 'ldap://ldap-service')  # ← era 'openldap-service'
+LDAP_BASE_DN = os.environ.get('LDAP_BASE_DN', 'dc=itu,dc=edu,dc=ar')
 
 # Secrets — nunca hardcodeados en código
 MYSQL_PASSWORD     = os.environ.get('MYSQL_PASSWORD', 'AppPass2024!')     # ← era 'itu12345'
@@ -144,12 +143,11 @@ def login():
 
     try:
         uid = email.split('@')[0]
-        # AD de Windows usa userPrincipalName: usuario@dominio
-        ldap_domain = LDAP_BASE_DN.replace('dc=', '').replace(',', '.')
-        upn = f'{uid}@{ldap_domain}'
+        # DN con ou=people según estructura OpenLDAP del Int. 4
+        user_dn = f'uid={uid},ou=people,{LDAP_BASE_DN}'
 
-        server = Server(f'ldap://{LDAP_HOST}:{LDAP_PORT}', get_info=ALL)
-        conn   = Connection(server, user=upn, password=password,
+        server = Server(LDAP_HOST, get_info=ALL)
+        conn   = Connection(server, user=user_dn, password=password,
                             authentication=SIMPLE, auto_bind=True)
 
         # Determinar rol según convención de nombres de usuario
@@ -216,6 +214,145 @@ def get_equipo_detalle(mongo_id):
             return jsonify({'error': 'Equipo no encontrado'}), 404
         doc['_id'] = str(doc['_id'])
         return jsonify(doc)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ── API: Crear equipo (MongoDB + MySQL) — requiere JWT válido ──
+@app.route('/api/equipos', methods=['POST'])
+@jwt_required
+def crear_equipo():
+    try:
+        data = request.get_json() or {}
+
+        numero_serie = data.get('numero_serie') or f"SN-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        numero_banco = int(data.get('numero_banco', 1))
+
+        # ── 1) Specs técnicas → MongoDB (colección 'hardware') ──
+        specs = {
+            'numero_serie':       numero_serie,
+            'tipo':               data.get('tipo', 'desktop'),
+            'fabricante':         data.get('fabricante', 'N/D'),
+            'modelo':             data.get('modelo') or data.get('nombre', 'Equipo sin nombre'),
+            'cpu':                data.get('cpu', {}),
+            'ram_gb':             data.get('ram_gb', 0),
+            'almacenamiento':     data.get('almacenamiento', {}),
+            'sistema_operativo':  data.get('sistema_operativo', ''),
+            'perifericos':        data.get('perifericos', {}),
+        }
+
+        db = get_mongo()
+        mongo_result = db['hardware'].insert_one(specs)
+        mongo_id = str(mongo_result.inserted_id)
+
+        # ── 2) Fila relacional → MySQL (tabla EQUIPOS) ──
+        conn = get_mysql()
+        cursor = conn.cursor()
+
+        # id_laboratorio / id_responsable son NOT NULL + FK en el schema.
+        # El modal de "Agregar equipo" todavía no tiene selectores para
+        # elegir laboratorio/responsable, así que si no vienen en el body
+        # se asigna el primero que exista como valor por defecto.
+        # TODO (Integrante 5): agregar selects de Laboratorio/Responsable
+        # al modal y mandar id_laboratorio / id_responsable reales.
+        id_laboratorio = data.get('id_laboratorio')
+        if not id_laboratorio:
+            cursor.execute("SELECT id_laboratorio FROM LABORATORIOS LIMIT 1")
+            row = cursor.fetchone()
+            id_laboratorio = row['id_laboratorio'] if row else None
+
+        id_responsable = data.get('id_responsable')
+        if not id_responsable:
+            cursor.execute("SELECT id_responsable FROM RESPONSABLES LIMIT 1")
+            row = cursor.fetchone()
+            id_responsable = row['id_responsable'] if row else None
+
+        if not id_laboratorio or not id_responsable:
+            conn.close()
+            db['hardware'].delete_one({'_id': mongo_result.inserted_id})  # rollback del lado Mongo
+            return jsonify({'error': 'No hay LABORATORIOS o RESPONSABLES cargados en MySQL todavía'}), 400
+
+        cursor.execute("""
+            INSERT INTO EQUIPOS (numero_serie, mongo_id, id_laboratorio, numero_banco, id_responsable, fecha_alta)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (numero_serie, mongo_id, id_laboratorio, numero_banco, id_responsable, datetime.now().date()))
+        conn.commit()
+        nuevo_id = cursor.lastrowid
+        conn.close()
+
+        return jsonify({'ok': True, 'id_equipo': nuevo_id, 'mongo_id': mongo_id, 'numero_serie': numero_serie}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ── API: Editar equipo (MongoDB + MySQL) — requiere JWT válido ──
+@app.route('/api/equipos/<mongo_id>', methods=['PUT'])
+@jwt_required
+def editar_equipo(mongo_id):
+    try:
+        from bson import ObjectId
+        data = request.get_json() or {}
+
+        # Specs técnicas en MongoDB: solo se actualizan los campos que vengan
+        campos_mongo = {k: v for k, v in data.items()
+                         if k in ('tipo', 'fabricante', 'modelo', 'cpu', 'ram_gb',
+                                  'almacenamiento', 'sistema_operativo', 'perifericos')}
+        if campos_mongo:
+            db = get_mongo()
+            db['hardware'].update_one({'_id': ObjectId(mongo_id)}, {'$set': campos_mongo})
+
+        # Campos relacionales en MySQL: solo se actualizan los que vengan
+        campos_sql = {}
+        if 'numero_banco' in data:
+            campos_sql['numero_banco'] = data['numero_banco']
+        if 'id_laboratorio' in data:
+            campos_sql['id_laboratorio'] = data['id_laboratorio']
+        if 'id_responsable' in data:
+            campos_sql['id_responsable'] = data['id_responsable']
+
+        if campos_sql:
+            conn = get_mysql()
+            cursor = conn.cursor()
+            set_clause = ", ".join(f"{k} = %s" for k in campos_sql)
+            valores = list(campos_sql.values()) + [mongo_id]
+            cursor.execute(f"UPDATE EQUIPOS SET {set_clause} WHERE mongo_id = %s", valores)
+            conn.commit()
+            conn.close()
+
+        if not campos_mongo and not campos_sql:
+            return jsonify({'error': 'No se envió ningún campo para actualizar'}), 400
+
+        return jsonify({'ok': True})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ── API: Borrar equipo (MySQL + MongoDB) — requiere JWT válido ──
+@app.route('/api/equipos/<mongo_id>', methods=['DELETE'])
+@jwt_required
+def borrar_equipo(mongo_id):
+    try:
+        from bson import ObjectId
+
+        conn = get_mysql()
+        cursor = conn.cursor()
+        # MANTENIMIENTOS tiene ON DELETE CASCADE sobre id_equipo,
+        # así que se borran solos los mantenimientos asociados.
+        cursor.execute("DELETE FROM EQUIPOS WHERE mongo_id = %s", (mongo_id,))
+        conn.commit()
+        filas_afectadas = cursor.rowcount
+        conn.close()
+
+        db = get_mongo()
+        db['hardware'].delete_one({'_id': ObjectId(mongo_id)})
+
+        if filas_afectadas == 0:
+            return jsonify({'error': 'Equipo no encontrado en MySQL'}), 404
+
+        return jsonify({'ok': True})
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
