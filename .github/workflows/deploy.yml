@@ -1,0 +1,122 @@
+﻿name: Deploy EGI a Minikube
+
+# Se dispara con cada push a main, o manualmente desde la pestaña Actions
+on:
+  push:
+    branches: [ main, EGI-Final ]
+  workflow_dispatch:
+
+env:
+  NAMESPACE: inventario-egi
+  IMAGE_NAME: inventario-app:latest
+
+jobs:
+  deploy:
+    name: Build y Deploy en Minikube
+    # self-hosted: Minikube corre en esta misma VM (la del laboratorio,
+    # conectada a pfSense). Un runner en la nube de GitHub no veria el
+    # cluster ni la red 172.22.x.x. Ver docs/GUIA-CI-CD.md para instalarlo.
+    runs-on: self-hosted
+    timeout-minutes: 15
+
+    steps:
+      # 1. Descargar el codigo del repositorio
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+
+      # 2. Verificar que el runner ve el cluster
+      - name: Verificar conexion al cluster
+        run: kubectl cluster-info
+
+      # 3. Buildear la imagen DENTRO del daemon Docker de Minikube
+      #    (mismo comando que limpieza.sh y el LEEME.md)
+      - name: Construir imagen inventario-app
+        run: |
+          eval $(minikube docker-env)
+          docker build -t ${{ env.IMAGE_NAME }} .
+
+      # 4. Crear el namespace (idempotente)
+      - name: Crear namespace
+        run: kubectl apply -f k8s/namespace/namespace.yaml
+
+      # 5. Crear los 4 Secrets desde GitHub Secrets (no se commitean en texto plano)
+      #    NOTA: esto reemplaza/ignora a proposito k8s/secrets/mysql-secret.yaml,
+      #    que esta desactualizado (tiene MYSQL_USER=mate en vez de app_user).
+      #    Los valores reales viven en Settings -> Secrets and variables -> Actions.
+      - name: Crear Secrets (mysql, mongo, ldap, app)
+        run: |
+          kubectl create secret generic mysql-secret \
+            --from-literal=MYSQL_ROOT_PASSWORD="${{ secrets.MYSQL_ROOT_PASSWORD }}" \
+            --from-literal=MYSQL_USER=app_user \
+            --from-literal=MYSQL_PASSWORD="${{ secrets.MYSQL_PASSWORD }}" \
+            --from-literal=MYSQL_DATABASE=inventario_itu \
+            -n ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl create secret generic mongo-secret \
+            --from-literal=MONGO_INITDB_ROOT_USERNAME=mongo_admin \
+            --from-literal=MONGO_INITDB_ROOT_PASSWORD="${{ secrets.MONGO_ROOT_PASSWORD }}" \
+            -n ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl create secret generic ldap-secret \
+            --from-literal=LDAP_ADMIN_USERNAME=admin \
+            --from-literal=LDAP_ADMIN_PASSWORD="${{ secrets.LDAP_ADMIN_PASSWORD }}" \
+            -n ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl create secret generic app-secret \
+            --from-literal=MYSQL_PASSWORD="${{ secrets.MYSQL_PASSWORD }}" \
+            --from-literal=MONGO_PASSWORD="${{ secrets.MONGO_ROOT_PASSWORD }}" \
+            --from-literal=LDAP_BIND_PASSWORD="${{ secrets.LDAP_ADMIN_PASSWORD }}" \
+            --from-literal=JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
+            -n ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+      # 6. PersistentVolumeClaims
+      - name: Aplicar PVCs
+        run: kubectl apply -f k8s/pvc/
+
+      # 7. ConfigMaps (app-config.yaml se aplica tal cual esta, sin tocar)
+      - name: Aplicar ConfigMaps
+        run: kubectl apply -f k8s/configmaps/
+
+      # 8. Deployments (mysql, mongo-deployment, ldap-deployment, app-deployment)
+      - name: Aplicar Deployments
+        run: kubectl apply -f k8s/deployments/
+
+      # 9. Services
+      - name: Aplicar Services
+        run: kubectl apply -f k8s/services/
+
+      # 10. Esperar a que los 4 Deployments reales lleguen a Ready
+      - name: Esperar rollout de los 4 Deployments
+        run: |
+          kubectl rollout status deployment/mysql           -n ${{ env.NAMESPACE }} --timeout=120s
+          kubectl rollout status deployment/mongo-deployment -n ${{ env.NAMESPACE }} --timeout=120s
+          kubectl rollout status deployment/ldap-deployment  -n ${{ env.NAMESPACE }} --timeout=120s
+          kubectl rollout status deployment/app-deployment   -n ${{ env.NAMESPACE }} --timeout=120s
+
+      # 11. NetworkPolicies al final, una vez que todo esta Ready
+      #     (evita que el deny-all bloquee algo durante el arranque inicial)
+      - name: Aplicar NetworkPolicies (Zero Trust)
+        run: kubectl apply -f k8s/networkpolicies/
+
+      # 12. Estado final - esto es lo que conviene mostrar en la defensa
+      - name: Estado final del cluster
+        run: |
+          echo '=== PODS ==='
+          kubectl get pods -n ${{ env.NAMESPACE }} -o wide
+          echo '=== SERVICES ==='
+          kubectl get svc -n ${{ env.NAMESPACE }}
+          echo '=== NETWORKPOLICIES ==='
+          kubectl get networkpolicies -n ${{ env.NAMESPACE }}
+          echo '=== URL APP ==='
+          minikube service inventario-app-service -n ${{ env.NAMESPACE }} --url
+
+      # 13. Chequeo informativo de /api/health (no falla el job si esta degraded,
+      #     solo informa - porque sql/mongo dependen de los datos que ya cargaron
+      #     ustedes a mano, y eso queda fuera del pipeline a proposito)
+      - name: Probar /api/health (informativo)
+        continue-on-error: true
+        run: |
+          URL=$(minikube service inventario-app-service -n ${{ env.NAMESPACE }} --url)
+          echo "Consultando $URL/api/health ..."
+          curl -s "$URL/api/health" | tee /tmp/health.json
+          echo ""
