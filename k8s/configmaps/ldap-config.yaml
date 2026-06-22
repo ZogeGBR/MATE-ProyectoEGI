@@ -5,5 +5,5 @@ metadata:
   namespace: inventario-egi
 data:
   LDAP_ORGANISATION: "Instituto Tecnologico Universitario"
-  LDAP_DOMAIN: "itu.edu.ar"
-  LDAP_BASE_DN: "dc=itu,dc=edu,dc=ar"
+  LDAP_DOMAIN: "itu.local"
+  LDAP_BASE_DN: "dc=itu,dc=local"

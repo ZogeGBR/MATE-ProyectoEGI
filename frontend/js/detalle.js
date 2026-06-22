@@ -174,6 +174,50 @@
    * El documento MongoDB puede tener cualquier estructura, por eso usamos
    * un mapeo flexible: todo lo que no sea _id se muestra como spec.
    */
+  /**
+   * Convierte un valor de spec (posiblemente un objeto anidado de Mongo)
+   * en un string legible para mostrar en la UI, en vez de JSON crudo.
+   */
+  function formatearValorSpec(clave, valor) {
+    if (valor === null || valor === undefined) return "—";
+    if (typeof valor === "boolean") return valor ? "Sí" : "No";
+    if (typeof valor !== "object") return String(valor);
+
+    // Casos conocidos con formato a medida
+    if (clave === "cpu") {
+      const partes = [];
+      if (valor.marca) partes.push(valor.marca);
+      if (valor.modelo) partes.push(valor.modelo);
+      if (valor.nucleos) partes.push(valor.nucleos + " núcleos");
+      if (valor.velocidad_ghz) partes.push(valor.velocidad_ghz + " GHz");
+      return partes.join(", ") || JSON.stringify(valor);
+    }
+    if (clave === "almacenamiento") {
+      const partes = [];
+      if (valor.capacidad_gb) partes.push(valor.capacidad_gb + " GB");
+      if (valor.tipo) partes.push(valor.tipo);
+      return partes.join(" ") || JSON.stringify(valor);
+    }
+    if (clave === "perifericos") {
+      const incluidos = Object.entries(valor)
+          .filter(function (entry) { return entry[1]; })
+          .map(function (entry) {
+            return entry[0].replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+          });
+      return incluidos.length ? incluidos.join(", ") : "Ninguno";
+    }
+
+    // Fallback genérico: aplanar objeto plano a "clave: valor, clave: valor"
+    return Object.entries(valor)
+        .map(function (entry) {
+          const k = entry[0].replace(/_/g, " ");
+          const v = (typeof entry[1] === "object" && entry[1] !== null)
+              ? JSON.stringify(entry[1])
+              : String(entry[1]);
+          return k + ": " + v;
+        })
+        .join(", ");
+  }
   function construirProducto(docMongo, baseLocal, codigoFallback) {
     // Campos reservados de MongoDB que NO queremos mostrar como specs
     const camposInternos = new Set(["_id", "numero_serie", "id_equipo"]);
@@ -187,10 +231,7 @@
             .replace(/_/g, " ")
             .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
         const valor = docMongo[clave];
-        // Mostrar objetos anidados como JSON compacto
-        specs[label] = (typeof valor === "object" && valor !== null)
-            ? JSON.stringify(valor)
-            : String(valor);
+        specs[label] = formatearValorSpec(clave, valor);
       }
     }
 

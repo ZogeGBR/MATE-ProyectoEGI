@@ -30,8 +30,9 @@ MONGO_PORT = int(os.environ.get('MONGO_PORT', 27017))
 MONGO_DB   = os.environ.get('MONGO_DATABASE', 'inventario_itu')
 
 # OpenLDAP (ConfigMap app-config)
-LDAP_HOST    = os.environ.get('LDAP_HOST', 'ldap://ldap-service')  # ← era 'openldap-service'
-LDAP_BASE_DN = os.environ.get('LDAP_BASE_DN', 'dc=itu,dc=edu,dc=ar')
+LDAP_HOST    = os.environ.get('LDAP_HOST', '172.22.75.83')
+LDAP_PORT    = int(os.environ.get('LDAP_PORT', '389'))
+LDAP_BASE_DN = os.environ.get('LDAP_BASE_DN', 'dc=itu,dc=local')
 
 # Secrets — nunca hardcodeados en código
 MYSQL_PASSWORD     = os.environ.get('MYSQL_PASSWORD', 'AppPass2024!')     # ← era 'itu12345'
@@ -143,11 +144,12 @@ def login():
 
     try:
         uid = email.split('@')[0]
-        # DN con ou=people según estructura OpenLDAP del Int. 4
-        user_dn = f'uid={uid},ou=people,{LDAP_BASE_DN}'
+        # AD de Windows usa userPrincipalName: usuario@dominio
+        ldap_domain = LDAP_BASE_DN.replace('dc=', '').replace(',', '.')
+        upn = f'{uid}@{ldap_domain}'
 
-        server = Server(LDAP_HOST, get_info=ALL)
-        conn   = Connection(server, user=user_dn, password=password,
+        server = Server(f'ldap://{LDAP_HOST}:{LDAP_PORT}', get_info=ALL)
+        conn   = Connection(server, user=upn, password=password,
                             authentication=SIMPLE, auto_bind=True)
 
         # Determinar rol según convención de nombres de usuario
