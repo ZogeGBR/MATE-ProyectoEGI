@@ -1,7 +1,0 @@
-Integrante 5 — Frontend y Presentación 
-Windows / App Web · Flask o Node.js · PPT · Documentación 
-•  Desarrollar la app web con 3 vistas: login, inventario (tabla SQL), detalle (datos MongoDB) 
-•  Implementar la lógica: buscar en SQL por ubicación → usar ID para traer datos de MongoDB 
-•  Autenticar el login contra OpenLDAP con la librería correspondiente 
-•  Crear los diagramas de flujo de la aplicación (login, búsqueda, detalle) 
-•  Armar la presentación en PowerPoint o Canva (arquitectura, BD, capturas, roles)
