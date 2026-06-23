@@ -1,8 +1,0 @@
-Integrante 3 — Base de Datos NoSQL (MongoDB)
-Base de Datos · Colecciones · Documentos JSON
-•  Diseñar la colección hardware con documentos variados (CPU, RAM, disco, SO, tipo)
-•  Crear mínimo 10 documentos JSON en db/mongo/seed.json
-•  Demostrar desde la shell del contenedor: find, updateOne, deleteOne, aggregate
-•  Desplegar MongoDB con PersistentVolumeClaim (datos persistentes entre reinicios)
-•  Asegurarse de que los IDs de MongoDB coinciden con los registros de SQL
-
