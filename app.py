@@ -358,6 +358,37 @@ def borrar_equipo(mongo_id):
         return jsonify({'error': str(e)}), 500
 
 
+
+# ── API: Listar laboratorios (para el selector del modal) ──
+@app.route('/api/laboratorios', methods=['GET'])
+@jwt_required
+def listar_laboratorios():
+    try:
+        conn = get_mysql()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id_laboratorio, nombre FROM LABORATORIOS ORDER BY nombre")
+        labs = cursor.fetchall()
+        conn.close()
+        return jsonify(labs)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ── API: Listar responsables (para el selector del modal) ──
+@app.route('/api/responsables', methods=['GET'])
+@jwt_required
+def listar_responsables():
+    try:
+        conn = get_mysql()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id_responsable, nombre, apellido FROM RESPONSABLES ORDER BY apellido")
+        resp = cursor.fetchall()
+        conn.close()
+        return jsonify(resp)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)

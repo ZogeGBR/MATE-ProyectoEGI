@@ -10,7 +10,8 @@ if (!JWT) {
 }
 
 function authHeaders() {
-  return { "Authorization": "Bearer " + JWT };
+  const token = localStorage.getItem("itu_jwt");
+  return { "Authorization": "Bearer " + token };
 }
 
 function handleAuthError(res) {
@@ -487,6 +488,33 @@ function generateCode() {
   return `INV-${year}-${String(next).padStart(3, "0")}`;
 }
 
+function cargarSelectoresModal() {
+  const selectLab = document.getElementById("new-laboratorio");
+  const selectResp = document.getElementById("new-responsable");
+
+  fetch("/api/laboratorios", { headers: authHeaders() })
+    .then(function (res) { return res.json(); })
+    .then(function (labs) {
+      selectLab.innerHTML = labs.map(function (l) {
+        return `<option value="${l.id_laboratorio}">${l.nombre}</option>`;
+      }).join("");
+    })
+    .catch(function () {
+      selectLab.innerHTML = `<option value="">Error al cargar</option>`;
+    });
+
+  fetch("/api/responsables", { headers: authHeaders() })
+    .then(function (res) { return res.json(); })
+    .then(function (resps) {
+      selectResp.innerHTML = resps.map(function (r) {
+        return `<option value="${r.id_responsable}">${r.nombre} ${r.apellido}</option>`;
+      }).join("");
+    })
+    .catch(function () {
+      selectResp.innerHTML = `<option value="">Error al cargar</option>`;
+    });
+}
+
 function openModal() {
   formAddItem.reset();
   modalError.hidden = true;
@@ -494,6 +522,7 @@ function openModal() {
   modalOverlay.hidden = false;
   document.body.style.overflow = "hidden";
   document.getElementById("new-nombre").focus();
+  cargarSelectoresModal();
 }
 
 function closeModal() {
@@ -551,6 +580,14 @@ formAddItem.addEventListener("submit", (e) => {
   // y nunca llegaba al backend, por eso el equipo "desaparecía" al volver
   // al dashboard (cargarInventario() lo pisaba con los datos reales).
   // Ahora: POST real a /api/equipos, y recarga desde la API al confirmar.
+  const idLaboratorio = document.getElementById("new-laboratorio").value;
+  const idResponsable = document.getElementById("new-responsable").value;
+
+  if (!idLaboratorio || !idResponsable) {
+    showModalError("Seleccioná un laboratorio y un responsable.");
+    return;
+  }
+
   fetch("/api/equipos", {
     method: "POST",
     headers: Object.assign({ "Content-Type": "application/json" }, authHeaders()),
@@ -561,6 +598,8 @@ formAddItem.addEventListener("submit", (e) => {
       ram_gb: 0,
       almacenamiento: {},
       perifericos: {},
+      id_laboratorio: idLaboratorio,
+      id_responsable: idResponsable,
     }),
   })
     .then(handleAuthError)

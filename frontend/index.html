@@ -412,6 +412,18 @@
               <option value="agotado">Agotado</option>
             </select>
           </div>
+          <div class="modal__field">
+            <label class="modal__label" for="new-laboratorio">Laboratorio *</label>
+            <select id="new-laboratorio" class="modal__select" required>
+              <option value="">Cargando…</option>
+            </select>
+          </div>
+          <div class="modal__field">
+            <label class="modal__label" for="new-responsable">Responsable *</label>
+            <select id="new-responsable" class="modal__select" required>
+              <option value="">Cargando…</option>
+            </select>
+          </div>
         </div>
         <div class="modal__error" id="modal-error" hidden>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -626,6 +638,8 @@
     document.getElementById("dropdown-logout").addEventListener("click", () => {
       localStorage.removeItem("itu_session_user");
       localStorage.removeItem("itu_profile_photo");
+      localStorage.removeItem("itu_jwt");
+      localStorage.removeItem("itu_inventario");
       window.location.href = "login.html";
     });
   </script>

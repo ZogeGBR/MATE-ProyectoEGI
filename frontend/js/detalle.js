@@ -27,7 +27,8 @@
   }
 
   function authHeaders() {
-    return { "Authorization": "Bearer " + JWT };
+    const token = localStorage.getItem("itu_jwt");
+    return { "Authorization": "Bearer " + token };
   }
 
 
